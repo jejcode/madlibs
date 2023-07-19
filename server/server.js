@@ -2,8 +2,7 @@ import express from "express";
 import cors from "cors";
 // import dotenv from "dotenv";
 import dbConnect from "./config/mongoose.config.js";
-import madlibRouter from "./routes/madlib.routes.js";
-
+import templateRouter from "./routes/madlib.routes.js";
 const app = express();
 // dotenv.config();
 
@@ -13,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: 'http://localhost:5173' }));
 
 // direct routes need to come after middleware
-app.use("/api/madlibs", madlibRouter);
+app.use("/api/templates", templateRouter);
 
 const serverStart = async () => {
   try {

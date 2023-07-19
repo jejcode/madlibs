@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { createMadlib } from "../controllers/madlib.controller.js";
+import { createMadlib } from "../controllers/template.controller.js";
+const templateRouter = Router()
 
-const madlibRouter = Router()
+templateRouter.post('/new', createMadlib)
 
-madlibRouter.post('/new', createMadlib)
-
-export default madlibRouter
+export default templateRouter
