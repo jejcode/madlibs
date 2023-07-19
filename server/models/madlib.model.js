@@ -7,7 +7,7 @@ const MadlibSchema = new mongoose.Schema({
   },
   body: {
     type: String,
-    required: [True, "Body text is required"]
+    required: [true, "Body text is required"]
   }
 
 });

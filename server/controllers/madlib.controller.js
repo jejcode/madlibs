@@ -1,4 +1,4 @@
-import Madlib from "../models/madlib.model";
+import Madlib from "../models/madlib.model.js";
 
 const createMadlib = async (req, res) => {
   try {
