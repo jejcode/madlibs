@@ -1,16 +1,21 @@
-import Madlib from "../models/template.model.js";
+import Template from "../models/template.model.js";
 
-const createMadlib = async (req, res) => {
+const createTemplate = async (req, res) => {
   try {
-    const newMadlib = await Madlib.create(req.body);
+    const newMadlib = await Template.create(req.body);
     return res.json(newMadlib);
   } catch (err) {
     res.status(400).json(err);
   }
 };
 
-
-
-export {
-  createMadlib
+const getAllTemplates = async (req, res) => {
+  try {
+    const allTemplates = await Template.find();
+    return res.json(allTemplates);
+  } catch (err) {
+    return res.json(err);
+  }
 };
+
+export { createTemplate, getAllTemplates };

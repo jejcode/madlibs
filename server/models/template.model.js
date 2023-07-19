@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 const TemplateSchema = new mongoose.Schema({
   title: { 
     type: String, 
-    required: [true, "Title is required"] 
+    required: [true, "Title is required"],
+    maxlength: [30, "Limit title to 30 characters"]
   },
   body: {
     type: String,
     required: [true, "Body text is required"],
-    maxlength: []
+    minLength: [100, "Body text must be at least 100 characters"],
+    maxLength: [2100, "Limit body text to 2100 characters"]
   },
   solutions: {
     type: [{
