@@ -29,7 +29,7 @@ const createTemplate = async (req, res) => {
         // if tempString has characters in it, add this text to the string until a closed curly is found.
         if (pIndex > -1) {
           // a closed curly is found. Complete the temp string, add temp string to blank array,
-          // and reset tempstring to false
+          // and reset temp string to false
           tempString += " " + thisString.slice(0, pIndex);
           blankArray.push(tempString);
           tempString = "";
