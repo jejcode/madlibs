@@ -13,7 +13,7 @@ const TemplateSchema = new mongoose.Schema({
     maxLength: [2100, "Limit body text to 2100 characters"]
   },
   prompts: {
-    type: [],
+    type: [{}],
     required: [true, "Text must have words surrounded by {}"]
   },
   solutions: {
