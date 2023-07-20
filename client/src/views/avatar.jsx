@@ -1,31 +1,37 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-const Main = (props) => {
+const Avatar = (props) => {
+    const [selectedColor, setSelectedColor] = useState("");
+
+    const handleAvatarClick = (color) => {
+        setSelectedColor(color);
+        console.log(color);
+    }
+
     return (
         <div>
             <h1>Welcome To</h1>
             <img src='/madlibs-696x230.png' alt='madlibs' />
             <h3>Choose an avatar:</h3>
-            <form onSubmit={props.onSubmitHandler}>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                <table>
-                    <tbody>
-                        <tr>
-                        <td><a href=''><img src="/blue_icon.png" alt="blue" /></a></td>
-                        <td><a href=''><img src="/red_icon.png" alt="red" /></a></td>
-                        <td><a href=''><img src="/yellow_icon.png" alt="yellow" /></a></td>
-                        </tr>
-                        <tr>
-                        <td><a href=''><img src="/green_icon.png" alt="green" /></a></td>
-                        <td><a href=''><img src="/purple_icon.png" alt="purple" /></a></td>
-                        <td><a href=''><img src="/grey_icon.png" alt="grey" /></a></td>
-                        </tr>
-                    </tbody>
-                </table>
-                </div>
-            </form>
+            <div style={{display: "flex", justifyContent: "center"}}>
+            <table>
+                <tbody>
+                    <tr>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('blue')}><img src="/blue_icon.png" alt="blue" /></Link></td>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('red')}><img src="/red_icon.png" alt="red" /></Link></td>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('yellow')}><img src="/yellow_icon.png" alt="yellow" /></Link></td>
+                    </tr>
+                    <tr>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('green')}><img src="/green_icon.png" alt="green" /></Link></td>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('purple')}><img src="/purple_icon.png" alt="purple" /></Link></td>
+                    <td><Link to="/dashboard" onClick={() => handleAvatarClick('grey')}><img src="/grey_icon.png" alt="grey" /></Link></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
         </div>
     )
 }
 
-export default Main;
+export default Avatar;
