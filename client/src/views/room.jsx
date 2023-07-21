@@ -1,46 +1,45 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { UserContext } from '../components/UserContext'; // Import the UserContext
+import { UserContext } from '../components/UserContext';
 import MessageForm from '../components/MessageForm';
 import MessagesDisplay from '../components/MessagesDisplay';
 import GameBoard from '../components/gameBoard/GameBoard';
 
-
 const Room = ({ socket }) => {
-    const { roomCode } = useParams();
-    const [messages, setMessages] = useState([]);
-    const [hasJoined, setHasJoined] = useState(false);
-    const { name } = useContext(UserContext); // Access the user's name from the UserContext
-    console.log("Room Code:", roomCode); // Check if the roomCode is received correctly
-    console.log("User Name:", name); 
-    console.log("Socket:", socket); // Check if the socket is received correctly
+    const { roomCode } = useParams(); // Get roomCode from URL
+    const [messages, setMessages] = useState([]); //All messages in the room
+    const { name } = useContext(UserContext); // Get name from UserContext
 
+    console.log("Room Code:", roomCode);
+    console.log("User Name:", name);
+    console.log("Socket:", socket); 
 
     useEffect(() => {
-        socket.emit('join room', roomCode); // Emit the roomCode to the server
-        socket.on('Welcome', data => console.log(data)); // Listen for a welcome event from the server when the user joins the room
-        socket.on('new_message', message => { // Listen for a new_message event from the server
-            console.log(message); //Not getting anything here
+        socket.emit('join_room', roomCode); // How users join a room
+
+        socket.on('Welcome', data => console.log(data)); 
+
+        socket.on('new_message', message => {
+            console.log("Back from server:", message.message);
             setMessages(oldMessages => [...oldMessages, message]);
-            console.log(messages); //Not getting anything here
         });
+
         return () => {
             socket.off("Welcome");
             socket.off("new_message");
         };
-    }, [socket, roomCode, name]);
+    }, [socket, roomCode]);
 
     const sendMessage = (message) => {
-        socket.emit("new_message", { message, name });
+        socket.emit("new_message", { message, name: name, roomCode: roomCode }); // Send message to server
     }
 
     return (
         <div>
             <GameBoard users={['Jon', 'Mike', 'Joel']}/>
             <h1>Chat Room</h1>
-
-            <MessageForm socket={socket} name={name} onSubmit={sendMessage} />
             <MessagesDisplay messages={messages} />
+            <MessageForm socket={socket} name={name} onSubmit={sendMessage} />
         </div>
     )
 }

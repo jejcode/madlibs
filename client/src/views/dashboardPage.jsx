@@ -6,7 +6,9 @@ const DashboardPage = ({ socket }) => {
     const context = useContext(UserProvider)
 
     return (
-        <Dashboard />    
+        <div>
+            <Dashboard socket={ socket } />
+        </div>
     )
 }
 
