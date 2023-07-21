@@ -25,7 +25,7 @@ const serverStart = async () => {
     // Set up Socket.IO server with CORS configurations
     const io = new Server(server, {
       cors: {
-        origin: 'http://localhost:3000',
+        origin: 'http://localhost:5173',
         methods: ['GET', 'POST'],
         allowedHeaders: ['*'],
         credentials: true,
