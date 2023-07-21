@@ -9,7 +9,7 @@ const MessagesDisplay = ({ messages }) => {
                 {messages.map((message, index) => (
                     <li key={index}>
                         {message.isNewUser ? (
-                            <p>{message.message}</p>
+                            <p>{message.message.text}</p>
                         ) : (
                             <p>
                                 <strong>{message.name}:</strong> {message.message}

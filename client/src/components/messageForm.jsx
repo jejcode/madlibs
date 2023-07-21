@@ -7,7 +7,6 @@ function MessageForm({ socket, name }) {
 
     const handleSubmit = event => {
         event.preventDefault();
-        console.log("From",name, message);
         socket.emit('new_message', { name, message, roomCode });
         setMessage('');
     };
