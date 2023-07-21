@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { UserContext } from '../components/UserContext';
 import MessageForm from '../components/MessageForm';
 import MessagesDisplay from '../components/MessagesDisplay';
+import GameBoard from '../components/gameBoard/GameBoard';
+
 
 const Room = ({ socket }) => {
     const { roomCode } = useParams(); // Get roomCode from URL
@@ -40,6 +42,7 @@ const Room = ({ socket }) => {
 
     return (
         <div>
+            <GameBoard users={['Jon', 'Mike', 'Joel']}/>
             <h1>Chat Room</h1>
             <MessagesDisplay messages={messages} />
             <MessageForm socket={socket} name={name} onSubmit={sendMessage} />
