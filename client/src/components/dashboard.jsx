@@ -47,6 +47,7 @@ const Dashboard = ({ socket }) => {
             />
 
             <CreateRoom
+                socket={socket}
                 isOpen={createRoomModalOpen}
                 onRequestClose={() => setCreateRoomModalOpen(false)}
                 closeModal={() => setCreateRoomModalOpen(false)} // Close the modal from CreateRoom component
