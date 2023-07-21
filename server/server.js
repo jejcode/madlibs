@@ -19,6 +19,9 @@ app.use("/api/templates", templateRouter);
 // Object to store active rooms and their user counts
 const activeRooms = {};
 
+// Object to store active users 
+const users = {};
+
 const serverStart = async () => {
   try {
     await dbConnect();
@@ -40,7 +43,7 @@ const serverStart = async () => {
     io.on("connection", socket => {
       console.log('socket id: ' + socket.id);
       socket.emit("Welcome", "Welcome to the server");
-    
+
       socket.on("create_room", (roomCode) => {
         // Check if the room code is already in activeRooms
         if (activeRooms[roomCode]) {
@@ -51,66 +54,80 @@ const serverStart = async () => {
           socket.emit("room_created", roomCode);
         }
       });
-    
+
       socket.on("join_room", (roomCode) => {
         // Check if the room code exists in activeRooms
         if (activeRooms[roomCode]) {
           socket.join(roomCode);
           console.log(`User with ID: ${socket.id} joined room: ${roomCode}`);
-    
+
           // Increment the user count for the room
           activeRooms[roomCode].userCount++;
-    
+          console.log("Active Rooms:", activeRooms)
+
           // Emit the room_exists event to indicate that the room exists
           socket.emit("room_exists", true);
         } else {
           // Room code does not exist, handle the error
           console.log(`Invalid room code: ${roomCode}`);
           socket.emit("room_join_error", "Room does not exist");
-    
+
           // Emit the room_exists event to indicate that the room does not exist
           socket.emit("room_exists", false);
         }
       });
-    
-      socket.on("new_user", (data) => {
+
+      socket.once("new_user", (data) => {
         console.log("new_user;", data.name);
+        users[socket.id] = data.name; // Store the user's name
+        console.log("Users:", users);
         io.to(data.roomCode).emit("new_message", {
           message: `${data.name} has joined the chat`,
           name: "Server",
+          isNewUser: true,
           roomCode: data.roomCode,
         });
       });
 
-      socket.on("new_message", (data) => { 
+      socket.on("new_message", (data) => {
         console.log(data.name, data.message, data.roomCode);
-        io.to(data.roomCode).emit("new_message", { 
-          message: data.message, 
-          name: data.name, 
-          isNewUser: false });
+        io.to(data.roomCode).emit("new_message", {
+          message: data.message,
+          name: data.name,
+          isNewUser: false
+        });
       });
 
       socket.on("disconnect", () => {
         console.log('User disconnected: ' + socket.id);
-
+        // Get the user's name
+        const name = users[socket.id];
         // Get the list of rooms the user is currently in
         const rooms = Object.keys(socket.rooms);
-
         // Decrement the user count for each room the user is in
         rooms.forEach(roomCode => {
           if (activeRooms[roomCode]) {
             activeRooms[roomCode].userCount--;
-
             // If the user count becomes zero, remove the room from activeRooms
             if (activeRooms[roomCode].userCount === 0) {
               delete activeRooms[roomCode];
+              console.log("Active Rooms:", activeRooms)
             }
           }
         });
-
-        socket.broadcast.emit("new_message", { text: `User ${socket.id} has left the chat` });
+        // If the user's name was found, include it in the disconnect message
+        if (name) {
+          socket.broadcast.emit("new_message", { message:`(${name} has left the chat)` });
+        } else {
+          socket.broadcast.emit("new_message", { message:`(User ${socket.id} has left the chat)` });
+        }
+        // Remove the user's name from the users object
+        delete users[socket.id];
+        console.log("Users:", users);
       });
     });
+
+
   } catch (err) {
     console.log(err);
   }

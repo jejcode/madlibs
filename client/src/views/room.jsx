@@ -10,9 +10,9 @@ const Room = ({ socket }) => {
     const [messages, setMessages] = useState([]); //All messages in the room
     const { name } = useContext(UserContext); // Get name from UserContext
 
-    console.log("Room Code:", roomCode);
-    console.log("User Name:", name);
-    console.log("Socket:", socket); 
+    // console.log("Room Code:", roomCode);
+    // console.log("User Name:", name);
+    // console.log("Socket:", socket); 
 
     useEffect(() => {
         socket.emit('join_room', roomCode); // How users join a room
@@ -26,20 +26,16 @@ const Room = ({ socket }) => {
 
         return () => {
             socket.off("Welcome");
-            socket.off("new_message");
+            socket.off("new_message"); 
         };
     }, [socket, roomCode]);
-
-    const sendMessage = (message) => {
-        socket.emit("new_message", { message, name: name, roomCode: roomCode }); // Send message to server
-    }
 
     return (
         <div>
             <GameBoard users={['Jon', 'Mike', 'Joel']}/>
             <h1>Chat Room</h1>
             <MessagesDisplay messages={messages} />
-            <MessageForm socket={socket} name={name} onSubmit={sendMessage} />
+            <MessageForm socket={socket} name={name} />
         </div>
     )
 }
