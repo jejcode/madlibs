@@ -79,15 +79,16 @@ const serverStart = async () => {
 
       socket.once("new_user", (data) => {
         console.log("new_user;", data.name);
-        users[socket.id] = data.name; // Store the user's name
+        users[socket.id] = { name: data.name, room: data.roomCode }; // Store the user's name and room
         console.log("Users:", users);
         io.to(data.roomCode).emit("new_message", {
-          message: `${data.name} has joined the chat`,
-          name: "Server",
-          isNewUser: true,
-          roomCode: data.roomCode,
+            message: `${data.name} has joined the chat`,
+            name: "Server",
+            isNewUser: true,
+            roomCode: data.roomCode,
         });
-      });
+    });
+    
 
       socket.on("new_message", (data) => {
         console.log(data.name, data.message, data.roomCode);
@@ -100,31 +101,34 @@ const serverStart = async () => {
 
       socket.on("disconnect", () => {
         console.log('User disconnected: ' + socket.id);
-        // Get the user's name
-        const name = users[socket.id];
+        // Get the user's name and room
+        const user = users[socket.id];
+        const name = user ? user.name : null;
+        const room = user ? user.room : null;
         // Get the list of rooms the user is currently in
         const rooms = Object.keys(socket.rooms);
         // Decrement the user count for each room the user is in
         rooms.forEach(roomCode => {
-          if (activeRooms[roomCode]) {
-            activeRooms[roomCode].userCount--;
-            // If the user count becomes zero, remove the room from activeRooms
-            if (activeRooms[roomCode].userCount === 0) {
-              delete activeRooms[roomCode];
-              console.log("Active Rooms:", activeRooms)
+            if (activeRooms[roomCode]) {
+                activeRooms[roomCode].userCount--;
+                // If the user count becomes zero, remove the room from activeRooms
+                if (activeRooms[roomCode].userCount === 0) {
+                    delete activeRooms[roomCode];
+                    console.log("Active Rooms:", activeRooms)
+                }
             }
-          }
         });
         // If the user's name was found, include it in the disconnect message
         if (name) {
-          socket.broadcast.emit("new_message", { message:`(${name} has left the chat)` });
+            socket.broadcast.emit("new_message", { message:`(${name} has left the chat)` });
         } else {
-          socket.broadcast.emit("new_message", { message:`(User ${socket.id} has left the chat)` });
+            socket.broadcast.emit("new_message", { message:`(User ${socket.id} has left the chat)` });
         }
         // Remove the user's name from the users object
         delete users[socket.id];
         console.log("Users:", users);
-      });
+    });
+    
     });
 
 
