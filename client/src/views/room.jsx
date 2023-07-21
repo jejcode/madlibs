@@ -36,7 +36,7 @@ const Room = ({ socket }) => {
 
     return (
         <div>
-            <GameBoard users={['Jon', 'Mike', 'Joel']}/>
+            <GameBoard socket={socket} />
             <h1>Chat Room</h1>
             <MessagesDisplay messages={messages} />
             <MessageForm socket={socket} name={name} onSubmit={sendMessage} />
