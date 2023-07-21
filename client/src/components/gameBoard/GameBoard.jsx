@@ -36,7 +36,6 @@ const GameBoard = (props) => {
       {loaded && 
         <div>
           
-          
         </div>
       }
     </>

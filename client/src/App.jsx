@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Main from './views/Main';
 import Avatar from './views/Avatar';
-import DashboardPage from './views/DashboardPage';
+import DashboardPage from './views/dashboardPage';
 import Room from './views/Room';
 import UserProvider from './components/UserContext';
 import io from 'socket.io-client';
