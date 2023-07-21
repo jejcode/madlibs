@@ -3,6 +3,7 @@ import cors from "cors";
 import dbConnect from "./config/mongoose.config.js";
 import templateRouter from "./routes/template.routes.js";
 import { Server } from "socket.io";
+import { getRandomTemplate } from "./services/template-serivces.js";
 
 const app = express();
 
@@ -98,6 +99,17 @@ const serverStart = async () => {
           isNewUser: false
         });
       });
+
+      // Gameplay sockets
+      socket.on("new_game", (roomCode) => {
+        console.log(`start new game i room ${roomCode}`)
+        const newGame = getRandomTemplate()
+          .then( newGame =>{
+            console.log('loaded game:', newGame)
+            io.to(roomCode).emit("prompts_loaded", {...newGame, isNewUser: false})
+          }
+          )
+      })
 
       socket.on("disconnect", () => {
         console.log('User disconnected: ' + socket.id);

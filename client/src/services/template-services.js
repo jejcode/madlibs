@@ -13,16 +13,4 @@ const createTemplate = async (madLib) => {
   }
 };
 
-const getRandomTemplate = async () => {
-  try {
-    const allTemplates = await instance.get("templates/all")
-    console.log(allTemplates)
-    const randomIndex = Math.floor(Math.random() * allTemplates.data.length)
-    console.log('random number', randomIndex)
-    return allTemplates.data[randomIndex]
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-export {createTemplate, getRandomTemplate}
+export {createTemplate}
