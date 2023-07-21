@@ -18,7 +18,7 @@ const Main = () => {
     return (
         <div>
             <h1>Welcome To</h1>
-            <img src='../assets/images//madlibs-696x230.png' alt='madlibs' />
+            <img src='madlibs-696x230.png' alt='madlibs' />
             <h3>Enter a name to begin!</h3>
             <form onSubmit={onSubmitHandler}>
                 <input type="text" name="name" value={name} onChange={onChangeHandler} />

@@ -73,15 +73,21 @@ const serverStart = async () => {
         }
       });
     
-
-      socket.on("new_user", (data) => { // data = { name: "user name", roomCode: "room code" }
-        console.log(data.name);
-        io.to(data.roomCode).emit("new_message", { isNewUser: true, text: `${data.name} has joined the chat` });
+      socket.on("new_user", (data) => {
+        console.log("new_user;", data.name);
+        io.to(data.roomCode).emit("new_message", {
+          message: `${data.name} has joined the chat`,
+          name: "Server",
+          roomCode: data.roomCode,
+        });
       });
 
-      socket.on("new_message", (data) => { // data = { message: { text: "message text", name: "user name" }, roomCode: "room code" }
+      socket.on("new_message", (data) => { 
         console.log(data.name, data.message, data.roomCode);
-        io.to(data.roomCode).emit("new_message", { message: data.message, name: data.name, isNewUser: false });
+        io.to(data.roomCode).emit("new_message", { 
+          message: data.message, 
+          name: data.name, 
+          isNewUser: false });
       });
 
       socket.on("disconnect", () => {

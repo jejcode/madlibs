@@ -5,11 +5,9 @@ import MessageForm from '../components/MessageForm';
 import MessagesDisplay from '../components/MessagesDisplay';
 import GameBoard from '../components/gameBoard/GameBoard';
 
-
 const Room = ({ socket }) => {
     const { roomCode } = useParams(); // Get roomCode from URL
     const [messages, setMessages] = useState([]); //All messages in the room
-    const [hasJoined, setHasJoined] = useState(false);
     const { name } = useContext(UserContext); // Get name from UserContext
 
     console.log("Room Code:", roomCode);
@@ -32,12 +30,8 @@ const Room = ({ socket }) => {
         };
     }, [socket, roomCode]);
 
-    useEffect(() => {
-        console.log("Updated Messages:", messages); // Log messages whenever it changes
-    }, [messages]);
-
     const sendMessage = (message) => {
-        socket.emit("new_message", { message, name, roomCode }); // Send message to server
+        socket.emit("new_message", { message, name: name, roomCode: roomCode }); // Send message to server
     }
 
     return (
