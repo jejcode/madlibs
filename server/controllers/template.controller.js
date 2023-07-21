@@ -12,16 +12,14 @@ const createTemplate = async (req, res) => {
       let thisString = madArray[i];
       const pIndex = thisString.indexOf("}");
       const blankIndex = blankArray.length
-      const indexAndPrompt = {}
-      // console.log('blankIndex:', blankIndex)
       // if thisString begins with '{' capture all characters until '}'
       if (thisString[0] === "{") {
         // if thisString begins and ends with curly brackets,
         // remove the curlies and add word to blankArray
         if (pIndex > -1) {
           // create key value pair based off what the index will be in blankArray
-          indexAndPrompt[blankIndex] = thisString.slice(1, pIndex)
-          blankArray.push(indexAndPrompt);
+          // indexAndPrompt[blankIndex] = thisString.slice(1, pIndex)
+          blankArray.push(thisString.slice(1, pIndex));
         } else {
           // if there are multiple words between curlies, use a temp string to hold text
           // until a closed curly shows up in another string
@@ -33,8 +31,8 @@ const createTemplate = async (req, res) => {
           // a closed curly is found. Complete the temp string, add temp string to blank array,
           // and reset temp string to false
           tempString += " " + thisString.slice(0, pIndex);
-          indexAndPrompt[blankIndex] = tempString
-          blankArray.push(indexAndPrompt);
+          // indexAndPrompt[blankIndex] = tempString
+          blankArray.push(tempString);
           tempString = "";
         } else {
           // no curly found, so keep adding to temp string
@@ -59,4 +57,13 @@ const getAllTemplates = async (req, res) => {
   }
 };
 
-export { createTemplate, getAllTemplates };
+const deleteAllTemplates = async (req, res) => {
+  try {
+    const deletedTemplates = await Template.deleteMany()
+    return res.json(deletedTemplates)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { createTemplate, getAllTemplates, deleteAllTemplates };

@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../components/UserContext';
 import MessageForm from '../components/messageForm';
+import GameBoard from '../components/gameBoard/GameBoard';
 
 const Room = ({ socket }) => {
     const { roomCode } = useParams();
@@ -31,6 +32,7 @@ useEffect(() => {
 
     return (
         <div>
+            <GameBoard users={['Jon', 'Mike', 'Joel']}/>
             <h1>Chat Room</h1>
             <MessageForm onSubmit={sendMessage} />
         </div>
