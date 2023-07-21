@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { UserContext } from '../components/UserContext';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
 function JoinRoom({ socket, isOpen, onRequestClose, closeModal }) {
-    const [inputRoomCode, setInputRoomCode] = useState(''); // Rename the state variable
-    const { roomCode: joinedRoomCode } = useParams(); // Get the room code from the URL
+    const [inputRoomCode, setInputRoomCode] = useState(''); 
+    const { name } = useContext(UserContext); // Get name from UserContext
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
@@ -14,15 +15,15 @@ function JoinRoom({ socket, isOpen, onRequestClose, closeModal }) {
         // TODO: Validate room code
 
         // Emit the room code to the server to check if the room exists
-        socket.emit("join_room", inputRoomCode); // Use inputRoomCode instead of roomCode
+        socket.emit("join_room", inputRoomCode);
 
         // Listen for a response from the server to check if the room exists
         socket.on("room_exists", (exists) => {
             if (exists) {
                 // Room exists, join the room and navigate to it
-                socket.emit("new_user", { roomCode: inputRoomCode, name: "Your User Name" }); // Use inputRoomCode
+                socket.emit("new_user", { roomCode: inputRoomCode, name }); 
                 console.log('room exists');
-                navigate(`/room/${inputRoomCode}`); // Use inputRoomCode
+                navigate(`/room/${inputRoomCode}`); 
             } else {
                 alert('Invalid Room Code');
             }
