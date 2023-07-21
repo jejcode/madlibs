@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 function MessageForm({ socket, name }) {
     const [message, setMessage] = useState('');
+    const { roomCode } = useParams();
 
     const handleSubmit = event => {
         event.preventDefault();
         console.log("From",name, message);
-        socket.emit('new_message', { name, message });
-        
+        socket.emit('new_message', { name, message, roomCode });
         setMessage('');
     };
 

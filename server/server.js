@@ -25,7 +25,7 @@ const serverStart = async () => {
     // Set up Socket.IO server with CORS configurations
     const io = new Server(server, {
       cors: {
-        origin: 'http://localhost:3000',
+        origin: ['http://localhost:3000', 'http://localhost:5173'], // Allow requests from both origins
         methods: ['GET', 'POST'],
         allowedHeaders: ['*'],
         credentials: true,
@@ -35,22 +35,21 @@ const serverStart = async () => {
     // Socket.IO event listeners
     io.on("connection", socket => {
       console.log('socket id: ' + socket.id);
-      console.log(`Nice to meet you, (shake hand)`);
       socket.emit("Welcome", "Welcome to the server");
     
-      socket.on("join_room", (roomCode) => {
+      socket.on("join_room", (roomCode) => { // roomCode = "room code"
         socket.join(roomCode);
         console.log(`User with ID: ${socket.id} joined room: ${roomCode}`);
       });
     
-      socket.on("new_user", (data) => {
+      socket.on("new_user", (data) => { // data = { name: "user name", roomCode: "room code" }
         console.log(data.name);
         io.to(data.roomCode).emit("new_message", { isNewUser: true, text: `${data.name} has joined the chat` });
       });
     
-      socket.on("new_message", (data) => {
-        console.log(data.message);
-        io.to(data.roomCode).emit("new_message", { ...data.message, isNewUser: false });
+      socket.on("new_message", (data) => { // data = { message: { text: "message text", name: "user name" }, roomCode: "room code" }
+        console.log(data.name, data.message, data.roomCode);
+        io.to(data.roomCode).emit("new_message", { ...data.message, isNewUser: false }); 
       });
     
       socket.on("disconnect", () => {

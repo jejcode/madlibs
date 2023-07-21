@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-function JoinRoom() {
+function JoinRoom({ socket, isOpen, onRequestClose, closeModal }) {
     const [roomCode, setRoomCode] = useState('');
-    const [modalIsOpen, setModalIsOpen] = useState(false);
     const { roomCode: joinedRoomCode } = useParams(); // Get the room code from the URL
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         // TODO: Validate room code
-        if (roomCode === joinedRoomCode) { // Check if the entered room code matches the one in the URL
-            socket.emit("new_user", { roomCode, name: "Your User Name" }); // Emit new_user event with roomCode and user name
-            navigate(`/room/${roomCode}`); // Navigate to the room with the provided room code
+        if (roomCode === joinedRoomCode) {
+            socket.emit("new_user", { roomCode, name: "Your User Name" });
+            navigate(`/room/${roomCode}`);
         } else {
-            setModalIsOpen(true);
+            alert('Invalid Room Code');
         }
+        closeModal(); // Close the modal after form submission
     };
 
     return (
-        <div>
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onRequestClose}
+            contentLabel="Join Room Modal"
+        >
+            <h2>Join Room</h2>
             <form onSubmit={handleSubmit}>
                 <label>
                     Room code:
@@ -33,17 +38,9 @@ function JoinRoom() {
                     />
                 </label>
                 <button type="submit">Join room</button>
+                <button onClick={onRequestClose}>Cancel</button>
             </form>
-
-            <Modal
-                isOpen={modalIsOpen}
-                onRequestClose={() => setModalIsOpen(false)}
-                contentLabel="Invalid Room Code"
-            >
-                <h2>Invalid Room Code</h2>
-                <button onClick={() => setModalIsOpen(false)}>Close</button>
-            </Modal>
-        </div>
+        </Modal>
     );
 }
 
