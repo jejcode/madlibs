@@ -1,25 +1,28 @@
 import React, { useState, useEffect, } from 'react';
 import io from 'socket.io-client';
 import { useParams } from 'react-router-dom';
+import { UserContext } from '../components/UserContext';
 import MessageForm from '../components/messageForm';
 
-const Room = () => {
+const Room = ({ socket }) => {
     const { roomCode } = useParams();
-    const [socket] = useState(() => io(':8000')); // instantiate socket connection
     const [name, setName] = useState(""); //user name
     const [messages, setMessages] = useState([]);
 
-    useEffect(() => {
-        socket.on('Welcome', data => console.log(data)); // listen for Welcome event
-        socket.on('new_message', message => { // listen for new_message event
-            setMessages(oldMessages => [...oldMessages, message]); // add new message to messages array
-        });
-        console.log('Latest Messages', messages);
-        return () => { // return callback to run when component unmounts
-            socket.off("Welcome"); // turn off Welcome event listener
-            socket.off("new_message"); // turn off new_message event listener
-        };
-    }, [socket, messages]); // add 'messages' to the dependency array
+// Room component
+useEffect(() => {
+    socket.emit('join room', roomCode); // emit 'join room' event to server when component mounts
+
+    socket.on('Welcome', data => console.log(data));
+    socket.on('new_message', message => {
+        setMessages(oldMessages => [...oldMessages, message]);
+    });
+    console.log('Latest Messages', messages);
+    return () => {
+        socket.off("Welcome");
+        socket.off("new_message");
+    };
+}, [socket, messages, roomCode]); // add 'roomCode' to the dependency array
 
     const sendMessage = (e, message) => {
         e.preventDefault();

@@ -1,17 +1,17 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import JoinRoom from './JoinRoom';
+import CreateRoom from './CreateRoom';
 
-const Dashboard = () => {
-    const navigate = useNavigate();
+const Dashboard = ({ socket }) => {
+    const [joinRoomModalOpen, setJoinRoomModalOpen] = useState(false);
+    const [createRoomModalOpen, setCreateRoomModalOpen] = useState(false);
 
     const handleJoinRoom = () => {
-        // Navigate to the Join Room page
-        navigate('/join-room');
+        setJoinRoomModalOpen(true);
     };
 
     const handleCreateRoom = () => {
-        // Navigate to the Create Room page
-        navigate('/create-room');
+        setCreateRoomModalOpen(true);
     };
 
     return (
@@ -19,6 +19,16 @@ const Dashboard = () => {
             <h1>Dashboard</h1>
             <button onClick={handleJoinRoom}>Join Room</button>
             <button onClick={handleCreateRoom}>Create Room</button>
+
+            <JoinRoom 
+                isOpen={joinRoomModalOpen} 
+                onRequestClose={() => setJoinRoomModalOpen(false)}
+            />
+
+            <CreateRoom 
+                isOpen={createRoomModalOpen} 
+                onRequestClose={() => setCreateRoomModalOpen(false)}
+            />
         </div>
     );
 };

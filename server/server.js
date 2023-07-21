@@ -6,52 +6,61 @@ import { Server } from "socket.io";
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Enable CORS for the Express server to accept requests from http://localhost:5173
 app.use(cors({ origin: 'http://localhost:5173' }));
 
+// Parse incoming JSON and URL-encoded data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Set up routes
 app.use("/api/templates", templateRouter);
 
 const serverStart = async () => {
   try {
     await dbConnect();
     const PORT = 8000;
-    // app.listen(PORT, () => console.log("Database is loaded.")); // remove this line
+    const server = app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    
+    // Set up Socket.IO server with CORS configurations
+    const io = new Server(server, {
+      cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['*'],
+        credentials: true,
+      }
+    });
+    
+    // Socket.IO event listeners
+    io.on("connection", socket => {
+      console.log('socket id: ' + socket.id);
+      console.log(`Nice to meet you, (shake hand)`);
+      socket.emit("Welcome", "Welcome to the server");
+    
+      socket.on("join_room", (roomCode) => {
+        socket.join(roomCode);
+        console.log(`User with ID: ${socket.id} joined room: ${roomCode}`);
+      });
+    
+      socket.on("new_user", (data) => {
+        console.log(data.name);
+        io.to(data.roomCode).emit("new_message", { isNewUser: true, text: `${data.name} has joined the chat` });
+      });
+    
+      socket.on("new_message", (data) => {
+        console.log(data.message);
+        io.to(data.roomCode).emit("new_message", { ...data.message, isNewUser: false });
+      });
+    
+      socket.on("disconnect", () => {
+        console.log('User disconnected: ' + socket.id);
+        socket.broadcast.emit("new_message", { text: `User ${socket.id} has left the chat` });
+      });
+    });
   } catch (err) {
     console.log(err);
   }
 };
 
-const server = app.listen(8000, () => console.log(`Server is running on port 8000`));
-
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000', 
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['*'],
-    credentials: true,
-  }
-});
-
-io.on("connection", socket => {
-  console.log('socket id: ' + socket.id);
-  console.log(`Nice to meet you,(shake hand)`);
-  socket.emit("Welcome", "Welcome to the server");
-
-  socket.on("new_user", name => {
-      console.log(name);
-      socket.broadcast.emit("new_message", { isNewUser: true, text: `${name} has joined the chat` });
-  });
-
-  socket.on("new_message", message => {
-      console.log(message);
-      io.emit("new_message", { ...message, isNewUser: false });
-  });
-
-  socket.on("disconnect", () => {
-    console.log('User disconnected: ' + socket.id);
-    socket.broadcast.emit("new_message", { text: `User ${socket.id} has left the chat` });
-  });
-});
-
-await serverStart();
+serverStart();
