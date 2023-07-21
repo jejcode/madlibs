@@ -6,7 +6,7 @@ const DashboardPage = ({ socket }) => {
 
     return (
         <div>
-            <Dashboard />
+            <Dashboard socket={ socket } />
         </div>
     )
 }
