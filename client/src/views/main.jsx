@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../components/UserContext.jsx';
 
-
-const Main = (props) => {
+const Main = () => {
     const navigate = useNavigate();
-    const [name, setName] = useState("");
+    const { name, setName } = useContext(UserContext); // Use the UserContext
 
     const onChangeHandler = (e) => {
         setName(e.target.value);
@@ -21,7 +21,7 @@ const Main = (props) => {
             <img src='/madlibs-696x230.png' alt='madlibs' />
             <h3>Enter a name to begin!</h3>
             <form onSubmit={onSubmitHandler}>
-                <input type="text" name="name" onChange={onChangeHandler} />
+                <input type="text" name="name" value={name} onChange={onChangeHandler} />
                 <input type="submit" value="Start Madlibs" />
             </form>
         </div>
