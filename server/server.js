@@ -103,10 +103,18 @@ const serverStart = async () => {
       // Gameplay sockets
       socket.on("new_game", (roomCode) => {
         console.log(`start new game i room ${roomCode}`)
-        const newGame = getRandomTemplate()
+        console.log('all users:', users)
+        const roomUsers = Object.entries(users)
+          .filter(([key,value]) => value.room == roomCode)
+          .map(([key,value]) => {
+            value.id = key
+            return value
+          })
+        console.log('room users:', roomUsers)
+        const newGame = getRandomTemplate(roomUsers)
           .then( newGame =>{
             console.log('loaded game:', newGame)
-            io.to(roomCode).emit("prompts_loaded", {...newGame, isNewUser: false})
+            io.to(roomCode).emit("prompts_loaded", {...newGame, roomUsers, isNewUser: false})
           }
           )
       })
