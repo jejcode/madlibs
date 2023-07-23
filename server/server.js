@@ -114,9 +114,9 @@ const serverStart = async () => {
       socket.on("disconnect", () => {
         console.log('User disconnected: ' + socket.id);
         // Get the user's name and room
-        const user = users[socket.id];
-        const name = user ? user.name : null;
-        const room = user ? user.room : null;
+        const user = users[socket.id]; 
+        const name = user ? user.name : null; 
+        const room = user ? user.room : null; 
         // Get the list of rooms the user is currently in
         const rooms = Object.keys(socket.rooms);
         // Decrement the user count for each room the user is in
