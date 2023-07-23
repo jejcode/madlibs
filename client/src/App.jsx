@@ -1,27 +1,34 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Main from './views/Main';
-import Avatar from './views/Avatar';
-import DashboardPage from './views/dashboardPage';
-import Room from './views/Room';
-import UserProvider from './components/UserContext';
-import io from 'socket.io-client';
+import "./App.css";
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import RegisterView from "./views/RegisterView";
+import AvatarForm from "./components/forms/AvatarForm";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import DashboardView from "./views/DashboardView";
+import Container from "react-bootstrap/Container";
+import {socket, SocketContext} from './contexts/socket'
+import RoomView from "./views/RoomView";
 
-const socket = io('http://localhost:8000');
-
-const App = () => {
+function App() {
+  const resetPage = () => {
+    
+  }
   return (
-    <Router>
-      <UserProvider>
-        <Routes>
-          <Route path="/" element={<Main />} />
-          <Route path="/avatar" element={<Avatar />} />
-          <Route path="/dashboard" element={<DashboardPage socket={socket}/>} />
-          <Route path="/room/:roomCode" element={<Room socket={socket} />} /> {/* Pass the socket instance to the Room component */}
-        </Routes>
-      </UserProvider>
-    </Router>
+    <>
+      
+      <Container>
+        <SocketContext.Provider value={socket}>
+          <Router>
+            <Routes>
+                <Route path="/" element={<RegisterView />} />
+                <Route path="/dashboard" element={<DashboardView />} />
+                <Route path="/rooms/:roomId" element={<RoomView />} />
+            </Routes>
+          </Router>
+        </SocketContext.Provider>
+      </Container>
+    </>
   );
-};
+}
 
 export default App;
