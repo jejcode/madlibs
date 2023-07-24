@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import dbConnect from "./mongo/dbConnect.js";
 import templateRouter from "./routes/template.routes.js";
 import { generateRoomCode } from "./utils/server-functions.js";
+import { getRandomTemplate } from "./services/template-service.js";
 const app = express();
 
 // Enable CORS for the Express server to accept requests from http://localhost:5173
@@ -43,7 +44,7 @@ async function serverStart() {
       // and returns the room code to the client for navigation
       socket.on("CREATE_ROOM_REQUEST", (reqName) => {
         
-        const newRoomCode = generateRoomCode();
+        const newRoomCode = generateRoomCode(rooms);
         rooms[newRoomCode] = [reqName];
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
@@ -72,6 +73,7 @@ async function serverStart() {
           isNewUser: true,
           roomCode: roomId,
       });
+      console.log('current rooms:', rooms)
       })
 
       socket.on("new_message", (data) => {
@@ -82,6 +84,18 @@ async function serverStart() {
           isNewUser: false
         });
       });
+
+      // game play sockets
+      socket.on("start_game", ({name,roomId}) => {
+        socket.in(roomId).emit("new_message", {
+          message: `I started the game!`,
+          name: name,
+          isNewUser: false
+        })
+        socket.in(roomId).emit("loading_game", "Loading game...")
+        const promptsToSend = getRandomTemplate(rooms[roomId])
+        socket.in(roomId).emit("distribute_prompts", promptsToSend)
+      })
 
       socket.on("user_left_room", userInfo => {
         console.log(userInfo.name, 'has left room', userInfo.roomCode)
