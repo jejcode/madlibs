@@ -12,7 +12,7 @@ const RoomView = () => {
   const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);
   const { roomId } = useParams();
-  const [usersInRoom, setUsersInRoom] = useState([]);
+  const [usersInRoom, setUsersInRoom] = useState([]); 
 
   useBeforeUnload(
     useCallback(() => {
@@ -23,12 +23,14 @@ const RoomView = () => {
       });
     })
   );
+
+  
   useEffect(() => {
     // test to see if sockets are working
     socket.emit("USER_JOINED_ROOM", { roomId, name });
 
     socket.on("JOIN_ROOM_ACCEPTED", (listOfUsers) => {
-      console.log(listOfUsers);
+      console.log("List of users in room from server", listOfUsers);
       setUsersInRoom(listOfUsers);
     });
     return () => {
