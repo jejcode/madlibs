@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useParams, useBeforeUnload } from "react-router-dom";
 import ChatView from "./ChatView";
+import GameBoard from "../components/gameboard/gameboard";
 import UserList from "../components/UserList";
 import { SocketContext } from "../contexts/socket";
 import { UserContext } from "../contexts/users";
@@ -41,8 +42,8 @@ const RoomView = () => {
     <UserContext.Provider value={{ usersInRoom }}>
       <h2>Room: {roomId}</h2>
       <Row>
-        <Col>
-          {/* <GameboardView /> */}
+        <Col xs="12" sm="12" md="8" lg="8" xl="8">
+          <GameBoard />
           <ChatView />
         </Col>
         <Col>
