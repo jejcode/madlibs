@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import dbConnect from "./mongo/dbConnect.js";
 import templateRouter from "./routes/template.routes.js";
 import { generateRoomCode } from "./utils/server-functions.js";
+import { getRandomTemplate } from "./services/template-service.js";
 const app = express();
 
 // Enable CORS for the Express server to accept requests from http://localhost:5173
@@ -36,6 +37,7 @@ async function serverStart() {
 
     const rooms = {}; // room#: [userNames]
     const users = {} // room#: [userNames]
+    const madlibs = {} // room#: [input objects {index, input}]
     // socket.io event listeners
     io.on("connection", (socket) => {
       // Generates random room code,
@@ -43,7 +45,7 @@ async function serverStart() {
       // and returns the room code to the client for navigation
       socket.on("CREATE_ROOM_REQUEST", (reqName) => {
         
-        const newRoomCode = generateRoomCode();
+        const newRoomCode = generateRoomCode(rooms);
         rooms[newRoomCode] = [reqName];
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
@@ -86,6 +88,41 @@ async function serverStart() {
           isNewUser: false
         });
       });
+
+      // game play sockets
+      socket.on("start_game", async ({name,roomId}) => {
+        try {
+          io.to(roomId).emit("new_message", {
+            message: `${name} started the game!`,
+            name: name,
+            isNewUser: false
+          })
+          io.to(roomId).emit("loading_game", "Loading game...")
+          const completeMadlib = await getRandomTemplate(rooms[roomId])
+          console.log(completeMadlib)
+          io.to(roomId).emit("distribute_madlib", completeMadlib)
+        } catch (error) {
+        }
+      })
+
+      socket.on("user_submit_prompt", ({inputWithIndex, roomId, limit}) => {
+        console.log('user submitted input')
+        if(!madlibs[roomId]) {
+          madlibs[roomId] = [inputWithIndex]
+        } else {
+          madlibs[roomId].push(inputWithIndex)
+        }
+        console.log(madlibs[roomId])
+
+        if(madlibs[roomId].length == limit) {
+          // send responses to everybody in the room
+          io.to(roomId).emit('responses_available', madlibs[roomId]);
+        } else {
+          // send permission to continue
+          socket.emit('input_received',true)
+          
+        }
+      })
 
       // When a user explicitly leaves a room
       socket.on("user_left_room", userInfo => {

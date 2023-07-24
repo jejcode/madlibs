@@ -9,11 +9,17 @@ img:hover {
 }
 
 #chatWindow {
-  height: 300px;
-  max-height: 300px;
+  height: 150px;
+  max-height: 150px;
   overflow: auto;
 }
 
 #user-list{
   height: 20px;
+}
+
+#gameBoard {
+  height: 300px;
+  max-height: 300px;
+  overflow: auto;
 }
