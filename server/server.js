@@ -48,30 +48,34 @@ async function serverStart() {
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
         socket.emit("CREATE_ROOM_SUCCESS", newRoomCode);
+        socket.emit("JOIN_ROOM_ACCEPTED", rooms[newRoomCode]);
       });
       socket.on("REQUEST_TO_JOIN_ROOM", info => {
-        const {roomId} = info
-        if(!rooms[roomId]){
+        const { roomId } = info
+        if (!rooms[roomId]) {
           socket.emit("ROOM_REQUEST_DENIED", false)
         } else {
+          socket.join(roomId);
           socket.emit("ROOM_REQUEST_ACCEPTED", roomId)
         }
       })
       socket.on("USER_JOINED_ROOM", info => {
-        const {roomId, name} = info
-        if(!rooms[roomId]) {
+        const { roomId, name } = info
+        if (!rooms[roomId]) {
           rooms[roomId] = [name]
         } else if (rooms[roomId].indexOf(name) === -1) {
           rooms[roomId].push(name)
         }
         console.log(rooms[roomId])
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", rooms[roomId])
-        io.to(roomId).emit("new_message", {
-          message: `${name} has joined the chat`,
-          name: "Server",
-          isNewUser: true,
-          roomCode: roomId,
-      });
+        if (rooms[roomId].includes(name)) {
+          io.to(roomId).emit("new_message", {
+            message: `${name} has joined the chat`,
+            name: "Server",
+            isNewUser: true,
+            roomCode: roomId,
+          });
+        }
       })
 
       socket.on("new_message", (data) => {
@@ -83,33 +87,56 @@ async function serverStart() {
         });
       });
 
+      // When a user explicitly leaves a room
       socket.on("user_left_room", userInfo => {
-        console.log(userInfo.name, 'has left room', userInfo.roomCode)
-        socket.to(userInfo.roomCode).emit("new_message", {
-          message: `${userInfo.name} has left the chat`,
+        const { name, roomCode } = userInfo;
+
+        // Remove the user from the room
+        if (rooms[roomCode]) {
+          rooms[roomCode] = rooms[roomCode].filter(user => user !== name);
+        }
+
+        // Notify the other users in the room
+        io.to(roomCode).emit("new_message", {
+          message: `${name} has left the chat`,
           name: "Server",
           isNewUser: true,
-          roomCode: userInfo.roomCode
-        })
-        if(rooms[userInfo.roomCode]) {
-          rooms[userInfo.roomCode] = rooms[userInfo.roomCode].map(user => {
-            if(user != userInfo.name) return user
-          })
-        }
-      })
-      socket.on("disconnect",() => {
-        console.log("User Disconnected", + socket.id);
-        for(let room in rooms){ // Iterate through all rooms
-          let index = rooms[room].indexOf(socket.id); // Find the room user was in
-          if(index !== -1){
-            rooms[room].splice(index,1);//Remove user from room
-          }
-          if(rooms[room].length === 0) {
-            delete rooms[room]; //Delete room
-          }
-          break; // Stop for loop
-        }
+          roomCode
         });
+      });
+
+      // When a user disconnects
+      socket.on("disconnect", () => {
+        console.log("User Disconnected", socket.id);
+
+        // Find the room the user was in
+        for (let room in rooms) {
+          let index = rooms[room].indexOf(socket.id);
+
+          // If the user was in this room
+          if (index !== -1) {
+            // Remove the user from the room
+            rooms[room].splice(index, 1);
+
+            // If the room is now empty, delete it
+            if (rooms[room].length === 0) {
+              delete rooms[room];
+            }
+
+            // Notify the other users in the room
+            io.to(room).emit("new_message", {
+              message: `${socket.id} has left the chat`,
+              name: "Server",
+              isNewUser: true,
+              roomCode: room
+            });
+
+            // Stop looking for the user's room
+            break;
+          }
+        }
+      });
+
 
 
     });
