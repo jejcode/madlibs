@@ -65,7 +65,7 @@ const DashboardView = () => {
             <Button variant="secondary" onClick={handleShow}>
               Join Room
             </Button>
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose} className="p-4">
               <Modal.Body>
                 <UniversalInputForm
                   setAction={handleClose}

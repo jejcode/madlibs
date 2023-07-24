@@ -10,13 +10,12 @@ const generateRoomCode = (rooms) => {
 };
 
 const distributePrompts = (prompts, users) => {
-  // const userNameArray
   const assignedPrompts = prompts.reduce((acc, prompt, index) => {
     const promptWithIndex = {
       index: index,
       prompt: prompt
     }
-    const user = users[index % users.length].name
+    const user = users[index % users.length]
     if(!acc[user]) acc[user] = []
     acc[user].push(promptWithIndex)
     return acc

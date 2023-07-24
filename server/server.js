@@ -37,6 +37,7 @@ async function serverStart() {
 
     const rooms = {}; // room#: [userNames]
     const users = {} // room#: [userNames]
+    const madlibs = {} // room#: [input objects {index, input}]
     // socket.io event listeners
     io.on("connection", (socket) => {
       // Generates random room code,
@@ -89,15 +90,38 @@ async function serverStart() {
       });
 
       // game play sockets
-      socket.on("start_game", ({name,roomId}) => {
-        socket.in(roomId).emit("new_message", {
-          message: `I started the game!`,
-          name: name,
-          isNewUser: false
-        })
-        socket.in(roomId).emit("loading_game", "Loading game...")
-        const promptsToSend = getRandomTemplate(rooms[roomId])
-        socket.in(roomId).emit("distribute_prompts", promptsToSend)
+      socket.on("start_game", async ({name,roomId}) => {
+        try {
+          io.to(roomId).emit("new_message", {
+            message: `${name} started the game!`,
+            name: name,
+            isNewUser: false
+          })
+          io.to(roomId).emit("loading_game", "Loading game...")
+          const completeMadlib = await getRandomTemplate(rooms[roomId])
+          console.log(completeMadlib)
+          io.to(roomId).emit("distribute_madlib", completeMadlib)
+        } catch (error) {
+        }
+      })
+
+      socket.on("user_submit_prompt", ({inputWithIndex, roomId, limit}) => {
+        console.log('user submitted input')
+        if(!madlibs[roomId]) {
+          madlibs[roomId] = [inputWithIndex]
+        } else {
+          madlibs[roomId].push(inputWithIndex)
+        }
+        console.log(madlibs[roomId])
+
+        if(madlibs[roomId].length == limit) {
+          // send responses to everybody in the room
+          io.to(roomId).emit('responses_available', madlibs[roomId]);
+        } else {
+          // send permission to continue
+          socket.emit('input_received',true)
+          
+        }
       })
 
       // When a user explicitly leaves a room
