@@ -12,7 +12,7 @@ const ChatView = () => {
   const { usersInRoom } = context
   const { roomId } = useParams()
   const [message, setMessage] = useState('')
-  console.log(usersInRoom)
+  // console.log("users in room",usersInRoom)
   
   useEffect(() => {
     if (message !== '') {

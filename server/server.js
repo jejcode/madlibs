@@ -38,6 +38,7 @@ async function serverStart() {
     const rooms = {}; // room#: [userNames]
     const users = {} // room#: [userNames]
     const madlibs = {} // room#: [input objects {index, input}]
+
     // socket.io event listeners
     io.on("connection", (socket) => {
       // Generates random room code,
@@ -59,6 +60,7 @@ async function serverStart() {
         } else {
           socket.join(roomId);
           socket.emit("ROOM_REQUEST_ACCEPTED", roomId)
+
         }
       })
       socket.on("USER_JOINED_ROOM", info => {
@@ -68,7 +70,8 @@ async function serverStart() {
         } else if (rooms[roomId].indexOf(name) === -1) {
           rooms[roomId].push(name)
         }
-        console.log(rooms[roomId])
+        console.log("rooms = ", rooms)
+        socket.emit("JOIN_ROOM_ACCEPTED", rooms[roomId]); // sends back array of users in room
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", rooms[roomId])
         if (rooms[roomId].includes(name)) {
           io.to(roomId).emit("new_message", {
@@ -120,27 +123,30 @@ async function serverStart() {
         } else {
           // send permission to continue
           socket.emit('input_received',true)
-          
         }
       })
 
       // When a user explicitly leaves a room
       socket.on("user_left_room", userInfo => {
-        const { name, roomCode } = userInfo;
-
-        // Remove the user from the room
-        if (rooms[roomCode]) {
-          rooms[roomCode] = rooms[roomCode].filter(user => user !== name);
-        }
-
-        // Notify the other users in the room
-        io.to(roomCode).emit("new_message", {
-          message: `${name} has left the chat`,
+        console.log('user left room', userInfo)
+        socket.leave(userInfo.roomCode) // removes user from room
+        io.to(userInfo.roomCode).emit("new_message", {
+          message: `${userInfo.name} has left the chat`,
           name: "Server",
           isNewUser: true,
-          roomCode
-        });
-      });
+          roomCode: userInfo.roomCode
+        })
+        if (rooms[userInfo.roomCode]) { // if room exists
+          rooms[userInfo.roomCode] = rooms[userInfo.roomCode].filter(user => user !== userInfo.name) // remove user from room
+        }
+        // Store the length of the room before potentially deleting it
+        const roomLength = rooms[userInfo.roomCode] ? rooms[userInfo.roomCode].length : 0;
+        // If the room is now empty, delete it
+        if (roomLength === 0) {
+          delete rooms[userInfo.roomCode];
+        }
+        io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", rooms[userInfo.roomCode]);
+      })
 
       // When a user disconnects
       socket.on("disconnect", () => {

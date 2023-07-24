@@ -12,19 +12,19 @@ const RoomView = () => {
   const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);
   const { roomId } = useParams();
-  const [usersInRoom, setUsersInRoom] = useState([]); 
+  const [usersInRoom, setUsersInRoom] = useState([]);
 
   useBeforeUnload(
     useCallback(() => {
-      socket.emit("new_message", {
+      socket.emit("user_left_room", {
         name,
-        message: `${name} has left the room`,
         roomCode: roomId,
       });
     })
   );
 
-  
+
+
   useEffect(() => {
     // test to see if sockets are working
     socket.emit("USER_JOINED_ROOM", { roomId, name });
@@ -47,7 +47,7 @@ const RoomView = () => {
           <ChatView />
         </Col>
         <Col>
-          <UserList userList={usersInRoom}/>
+          <UserList userList={usersInRoom} roomCode={roomId} />
         </Col>
       </Row>
     </UserContext.Provider>

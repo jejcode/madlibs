@@ -14,9 +14,10 @@ img:hover {
   overflow: auto;
 }
 
-#user-list{
-  height: 20px;
-}
+
+.user-icon{
+  height: 30px;
+
 
 #gameBoard {
   height: 300px;

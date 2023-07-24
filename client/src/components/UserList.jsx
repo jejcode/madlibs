@@ -1,39 +1,56 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import { SocketContext } from '../contexts/socket';
+import UserItem from './UserItem';
 
 const UserList = (props) => {
-  const {userList} = props
-  const {roomCode} = useParams()
-  const name = sessionStorage.getItem('name')
-  const avatar = sessionStorage.getItem('selectedColor')
-  const socket = useContext(SocketContext)
-  const navigate = useNavigate()
-
+  const { roomCode } = props;
+  const name = sessionStorage.getItem('name');
+  const socket = useContext(SocketContext);
+  const navigate = useNavigate();
+  const [userList, setUserList] = useState([]); // Use state to store the userList
 
   const leaveRoom = () => {
-    socket.emit("user_left_room", {name, roomCode})
-    navigate(`/dashboard`)
-  }
+    socket.emit("user_left_room", { name, roomCode });
+    navigate(`/dashboard`);
+  };
+
+  useEffect(() => {
+    // When the component mounts, update the userList with the initial list
+    setUserList(props.userList);
+
+    // Listen for the "USER_JOINED_ROOM" event and update the userList
+    socket.on("USER_JOINED_ROOM", (users) => {
+      setUserList(users);
+    });
+
+    // Listen for the "USER_LEFT_ROOM" event and update the userList
+    socket.on("USER_LEFT_ROOM", (users) => {
+      setUserList(users);
+    });
+
+    // Clean up the event listeners when the component unmounts
+    return () => {
+      socket.off("USER_JOINED_ROOM");
+      socket.off("USER_LEFT_ROOM");
+    };
+  }, [socket, props.userList]);
+
   return (
     <Row>
       <Col>
-      <ul>
-      {userList.map((user, index) => {
-        <li key={index}>
-            <img src = {`../../assets/${avatar}`} className='user-icon'></img>
-            <span>{name}</span>
-        </li>
-      })}
-      </ul>
+        <ul style={{ listStyleType: 'none' }}>
+          {userList.map((user, index) => (
+            <UserItem key={index} name={user} />
+          ))}
+        </ul>
         <Button variant="outline-danger" onClick={leaveRoom}>Leave Room</Button>
       </Col>
     </Row>
+  );
+};
 
-  )
-}
-
-export default UserList
+export default UserList;
