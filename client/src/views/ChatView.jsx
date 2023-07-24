@@ -14,8 +14,12 @@ const ChatView = () => {
   const [message, setMessage] = useState('')
   console.log(usersInRoom)
   useEffect(() => {
-    
-  },[socket])
+    socket.emit("new_message", {
+      name: name,
+      message: message,
+      roomCode: roomId
+    })
+  },[socket, message])
   return (
     <>
       <h4>Game chat</h4>

@@ -7,3 +7,13 @@
 img:hover {
   cursor: pointer
 }
+
+#chatWindow {
+  height: 300px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+#user-list{
+  height: 20px;
+}

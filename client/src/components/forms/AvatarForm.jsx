@@ -22,7 +22,7 @@ const AvatarForm = (props) => {
   ];
 
   const handleAvatarClick = (index) => {
-    sessionStorage.setItem('selectedColor', avatarList[index].slice(12,-9))
+    sessionStorage.setItem('selectedColor', avatarList[index].slice(12))
     navigate("/dashboard");
   };
   return (

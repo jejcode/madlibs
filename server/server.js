@@ -31,6 +31,7 @@ async function serverStart() {
     });
 
     const rooms = {}; // room#: [userNames]
+    const users = {} // room#: [userNames]
     // socket.io event listeners
     io.on("connection", (socket) => {
       // Generates random room code,
@@ -70,7 +71,52 @@ async function serverStart() {
         }
         console.log(rooms[roomId])
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", rooms[roomId])
+        io.to(roomId).emit("new_message", {
+          message: `${name} has joined the chat`,
+          name: "Server",
+          isNewUser: true,
+          roomCode: roomId,
+      });
       })
+
+      socket.on("new_message", (data) => {
+        console.log(data.name, data.message, data.roomCode);
+        io.to(data.roomCode).emit("new_message", {
+          message: data.message,
+          name: data.name,
+          isNewUser: false
+        });
+      });
+
+      socket.on("user_left_room", userInfo => {
+        console.log(userInfo.name, 'has left room', userInfo.roomCode)
+        socket.to(userInfo.roomCode).emit("new_message", {
+          message: `${userInfo.name} has left the chat`,
+          name: "Server",
+          isNewUser: true,
+          roomCode: userInfo.roomCode
+        })
+        if(rooms[userInfo.roomCode]) {
+          rooms[userInfo.roomCode] = rooms[userInfo.roomCode].map(user => {
+            if(user != userInfo.name) return user
+          })
+        }
+      })
+      socket.on("disconnect",() => {
+        console.log("User Disconnected", + socket.id);
+        for(let room in rooms){ // Iterate through all rooms
+          let index = rooms[room].indexOf(socket.id); // Find the room user was in
+          if(index !== -1){
+            rooms[room].splice(index,1);//Remove user from room
+          }
+          if(rooms[room].length === 0) {
+            delete rooms[room]; //Delete room
+          }
+          break; // Stop for loop
+        }
+        });
+
+
     });
   } catch (error) {
     console.log(error);
