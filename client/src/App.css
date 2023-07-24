@@ -1,6 +1,19 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 0;
+}
+
+img:hover {
+  cursor: pointer
+}
+
+#chatWindow {
+  height: 300px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+#user-list{
+  height: 20px;
 }
