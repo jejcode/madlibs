@@ -10,7 +10,7 @@ const MessagesWindow = () => {
   const endRef = useRef()
   useEffect(() => {
     socket.on('new_message', message => {
-      console.log('From Server', message.message);
+      // console.log('From Server', message.message);
       setAllMessages(oldMessages => [...oldMessages, message]);
     }
     )

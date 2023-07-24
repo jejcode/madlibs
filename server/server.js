@@ -31,7 +31,7 @@ async function serverStart() {
     });
 
     const rooms = {}; // room#: [userNames]
-    const users = {} // room#: [userNames]
+
     // socket.io event listeners
     io.on("connection", (socket) => {
       // Generates random room code,
@@ -62,6 +62,7 @@ async function serverStart() {
         } else {
           socket.join(roomId);
           socket.emit("ROOM_REQUEST_ACCEPTED", roomId)
+          
         }
       })
       socket.on("USER_JOINED_ROOM", info => {
@@ -71,7 +72,8 @@ async function serverStart() {
         } else if (rooms[roomId].indexOf(name) === -1) {
           rooms[roomId].push(name)
         }
-        console.log(rooms[roomId])
+        console.log("rooms = ",rooms)
+        socket.emit("JOIN_ROOM_ACCEPTED", rooms[roomId]); // sends back array of users in room
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", rooms[roomId])
         if (rooms[roomId].includes(name)) {
           io.to(roomId).emit("new_message", {
@@ -92,23 +94,23 @@ async function serverStart() {
         });
       });
 
-      // When a user explicitly leaves a room
       socket.on("user_left_room", userInfo => {
-        const { name, roomCode } = userInfo;
-
-        // Remove the user from the room
-        if (rooms[roomCode]) {
-          rooms[roomCode] = rooms[roomCode].filter(user => user !== name);
-        }
-
-        // Notify the other users in the room
-        io.to(roomCode).emit("new_message", {
-          message: `${name} has left the chat`,
+        console.log('user left room', userInfo)
+        // console.log(userInfo.name, 'has left room', userInfo.roomCode)
+        socket.leave(userInfo.roomCode) // removes user from room
+        io.to(userInfo.roomCode).emit("new_message", {
+          message: `${userInfo.name} has left the chat`,
           name: "Server",
           isNewUser: true,
-          roomCode
-        });
-      });
+          roomCode: userInfo.roomCode
+        })
+
+        if (rooms[userInfo.roomCode]) { // if room exists
+          rooms[userInfo.roomCode] = rooms[userInfo.roomCode].filter(user => user !== userInfo.name) // remove user from room
+        }
+
+      })
+
 
       // When a user disconnects
       socket.on("disconnect", () => {
