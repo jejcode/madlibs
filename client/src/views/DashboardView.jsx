@@ -33,6 +33,16 @@ const DashboardView = () => {
     socket.emit("CREATE_ROOM_REQUEST", name);
   };
 
+  const handleRandom = () => {
+    // Emit the room code to the server to create a new room
+    socket.emit("RANDOM_ROOM_REQUEST", name);
+    socket.off("RANDOM_ROOM_REQUEST");
+  };
+
+  const closeWithoutJoining = () => {
+    setShow(false);
+  };
+
   useEffect(() => {
     // Listen for a response from the server to check if the room was created successfully
     socket.on("CREATE_ROOM_SUCCESS", (roomId) => {
@@ -43,6 +53,7 @@ const DashboardView = () => {
     socket.on("ROOM_REQUEST_ACCEPTED", (roomId) => {
       navigate(`/rooms/${roomId}`);
     });
+    // Listen for a response from the server if room does not exist
     socket.on("ROOM_REQUEST_DENIED", res => {
       window.alert("Room does not exist.")
     })
@@ -50,8 +61,10 @@ const DashboardView = () => {
       socket.off("CREATE_ROOM_SUCCESS");
       socket.off("ROOM_REQUEST_ACCEPTED")
       socket.off("ROOM_REQUEST_DENIED")
+
     };
   }, [socket]);
+  
   return (
     <>
       <div className="d-flex justify-content-end">
@@ -65,7 +78,7 @@ const DashboardView = () => {
             <Button variant="secondary" onClick={handleShow}>
               Join Room
             </Button>
-            <Modal show={show} onHide={handleClose} className="p-4">
+            <Modal show={show} onHide={closeWithoutJoining} className="p-4">
               <Modal.Body>
                 <UniversalInputForm
                   setAction={handleClose}
@@ -73,6 +86,11 @@ const DashboardView = () => {
                   buttonLabel="Join"
                 />
               </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleRandom}>
+                  Random
+                </Button>
+              </Modal.Footer>
             </Modal>
             <Button variant="secondary" className="ms-4" onClick={createRoom}>
               Create Room
