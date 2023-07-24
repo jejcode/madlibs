@@ -63,6 +63,14 @@ async function serverStart() {
 
         }
       })
+      socket.on('RANDOM_ROOM_REQUEST', reqName => {
+        const roomCodes = Object.keys(rooms)
+        const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
+        rooms[randomRoomCode].push(reqName)
+        socket.join(randomRoomCode)
+        socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
+      })
+
       socket.on("USER_JOINED_ROOM", info => {
         const { roomId, name } = info
         if (!rooms[roomId]) {
@@ -98,7 +106,7 @@ async function serverStart() {
           io.to(roomId).emit("new_message", {
             message: `${name} started the game!`,
             name: name,
-            isNewUser: false
+            isNewUser: true
           })
           io.to(roomId).emit("loading_game", "Loading game...")
           const completeMadlib = await getRandomTemplate(rooms[roomId])
