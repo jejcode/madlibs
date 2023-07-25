@@ -40,16 +40,18 @@ const UserList = (props) => {
   }, [socket, props.userList]);
 
   return (
-    
-      <Col id="UserList">
-          {userList.map((user, index) => (
-            <UserItem key={index} name={user.userName} color={user.colorSelected} />
-          ))}
+
+    <Col id="UserList">
+      {userList.map((user, index) => (
+        <UserItem key={index} name={user.userName} color={user.colorSelected} />
+      ))}
+      <Row className="m-2">
         <Button variant="outline-danger" onClick={leaveRoom}>
           Leave Room
         </Button>
-      </Col>
-    
+      </Row>
+    </Col>
+
   );
 };
 
