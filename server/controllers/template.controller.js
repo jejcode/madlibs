@@ -53,6 +53,7 @@ const getAllTemplates = async (req, res) => {
     const allTemplates = await Template.find();
     return res.json(allTemplates);
   } catch (err) {
+    console.log(err)
     return res.json(err);
   }
 };

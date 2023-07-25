@@ -5,7 +5,7 @@ const MessagesDisplay = ({ messages }) => {
     return (
         <div>
             <h2>Messages</h2>
-            <ul className='' >
+            <ul>
                 {messages.map((message, index) => (
                     <li key={index}>
                         {message.isNewUser ? (
