@@ -7,6 +7,8 @@ import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import UniversalInputForm from "../components/forms/UniversalInputForm";
 import { SocketContext } from "../contexts/socket";
+import Header from "../components/dashboard/Header";
+import "../App.css"
 
 const DashboardView = () => {
   const socket = useContext(SocketContext);
@@ -67,34 +69,33 @@ const DashboardView = () => {
   
   return (
     <>
-      <div className="d-flex justify-content-end">
-        <Button variant="secondary" onClick={resetPage}>
-          Log out and reset
-        </Button>
-      </div>
       <Container>
-        <Row className="justify-content-center align-items-center">
+        <Header />
+        <Row id="dashboard" className="d-flex justify-content-center align-items-center">
           <Col xs="auto" sm="auto" md="auto" lg="auto">
-            <Button variant="secondary" onClick={handleShow}>
-              Join Room
-            </Button>
-            <Modal show={show} onHide={closeWithoutJoining} className="p-4">
-              <Modal.Body>
-                <UniversalInputForm
-                  setAction={handleClose}
-                  placeHolder="Enter room code"
-                  buttonLabel="Join"
-                />
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleRandom}>
-                  Random
-                </Button>
-              </Modal.Footer>
-            </Modal>
-            <Button variant="secondary" className="ms-4" onClick={createRoom}>
-              Create Room
-            </Button>
+            <div>
+
+              <Button variant="secondary" onClick={handleShow}>
+                Join Room
+              </Button>
+              <Modal show={show} onHide={closeWithoutJoining} className="p-4">
+                <Modal.Body>
+                  <UniversalInputForm
+                    setAction={handleClose}
+                    placeHolder="Enter room code"
+                    buttonLabel="Join"
+                  />
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleRandom}>
+                    Random
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+              <Button variant="secondary" className="ms-4" onClick={createRoom}>
+                Create Room
+              </Button>
+            </div>
           </Col>
         </Row>
       </Container>

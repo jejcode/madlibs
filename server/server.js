@@ -133,8 +133,9 @@ async function serverStart() {
         console.log(madlibs[roomId])
 
         if(madlibs[roomId].length == limit) {
-          // send responses to everybody in the room
+          // send responses to everybody in the room and remove them from storage
           io.to(roomId).emit('all_users_finished', madlibs[roomId]);
+          delete madlibs[roomId]
         } else {
           // send permission to continue
           socket.emit('input_received',true)

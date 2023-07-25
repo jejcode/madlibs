@@ -1,14 +1,13 @@
 import "./App.css";
 import React from "react";
+import RoomView from "./views/RoomView";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RegisterView from "./views/RegisterView";
-import AvatarForm from "./components/forms/AvatarForm";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import DashboardView from "./views/DashboardView";
+import AddMadLibView from "./views/AddMadlibView";
 import Container from "react-bootstrap/Container";
+import DashboardView from "./views/DashboardView";
 import {socket, SocketContext} from './contexts/socket'
-import RoomView from "./views/RoomView";
-
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 function App() {
   const resetPage = () => {
     
@@ -23,6 +22,7 @@ function App() {
                 <Route path="/" element={<RegisterView />} />
                 <Route path="/dashboard" element={<DashboardView />} />
                 <Route path="/rooms/:roomId" element={<RoomView />} />
+                <Route path="/madlibs/new" element={<AddMadLibView />} />
             </Routes>
           </Router>
         </SocketContext.Provider>

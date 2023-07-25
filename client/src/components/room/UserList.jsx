@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { SocketContext } from '../contexts/socket';
-import UserItem from './UserItem';
+import React, { useContext, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import { SocketContext } from "../../contexts/socket";
+import UserItem from "./UserItem";
 
 const UserList = (props) => {
   const { roomCode } = props;
-  const name = sessionStorage.getItem('name');
+  const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [userList, setUserList] = useState([]); // Use state to store the userList
@@ -40,12 +40,16 @@ const UserList = (props) => {
   }, [socket, props.userList]);
 
   return (
-    <Row id='UserList'>
-      <Col className='p-3'>
+    <Row>
+      <Col>
+        <ul style={{ listStyleType: "none" }}>
           {userList.map((user, index) => (
-            <UserItem key={index} name={user}/>
+            <UserItem key={index} name={user} />
           ))}
-        <Button variant="outline-danger" onClick={leaveRoom}>Leave Room</Button>
+        </ul>
+        <Button variant="outline-danger" onClick={leaveRoom}>
+          Leave Room
+        </Button>
       </Col>
     </Row>
   );
