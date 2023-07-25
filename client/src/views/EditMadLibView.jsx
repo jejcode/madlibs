@@ -17,7 +17,7 @@ const EditMadLibView = () => {
         console.log(error);
       }
     })();
-  }, []);
+  }, [madLibId]);
   return (
     <>
       {!loaded ? (
