@@ -7,7 +7,7 @@ const GameBoard = () => {
   const { roomId } = useParams();
   const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);
-  const [gameStarted, setGameStarted] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false); 
   const [gameLoaded, setGameLoaded] = useState(false);
   const [gameSolved, setGameSolved] = useState(false);
   const [gameTemplate, setGameTemplate] = useState("");
@@ -15,7 +15,7 @@ const GameBoard = () => {
   const [currentPrompt, setCurrentPrompt] = useState({});
   const [userFinished, setUserFinished] = useState(false)
 
-  const startGame = () => {
+  const startGame = () => { 
     console.log("starting game");
     setGameStarted(true);
     socket.emit("start_game", { name, roomId });
