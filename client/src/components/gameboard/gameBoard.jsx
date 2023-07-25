@@ -48,7 +48,6 @@ const GameBoard = () => {
       setGameStarted(true);
     });
     socket.on("distribute_madlib", (madlib) => {
-      console.log("madlib recieved");
       setGameTemplate(madlib);
       const [firstPrompt, ...remainingPrompts] = madlib.assignedPrompts[name];
       setCurrentPrompt(firstPrompt);

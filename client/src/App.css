@@ -23,6 +23,6 @@ img:hover {
 
 #gameBoard {
   height: 300px;
-  max-height: 300px;
+  max-height: 600px;
   overflow: auto;
 }

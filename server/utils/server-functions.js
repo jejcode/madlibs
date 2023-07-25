@@ -15,6 +15,8 @@ const distributePrompts = (prompts, users) => {
       index: index,
       prompt: prompt
     }
+    console.log(promptWithIndex)
+    console.log('users', users)
     const user = users[index % users.length]
     if(!acc[user]) acc[user] = []
     acc[user].push(promptWithIndex)

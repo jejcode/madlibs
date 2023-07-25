@@ -1,8 +1,18 @@
 import Template from "../models/template.model.js";
 
 const createTemplate = async (req, res) => {
-  
   try {
+    // validate by creating an instance of request
+    const newTemplate = new Template(req.body)
+    const validationError = newTemplate.validateSync() // synchronous validation
+
+    if(validationError) {
+      const errors = {};
+      for (const field in validationError.errors) {
+        errors[field] = validationError.errors[field].message;
+      }
+      return res.status(400).json({ errors });
+    }
     let madString = req.body.body
     let madArray = madString.split(" ");
     let blankArray = [];
