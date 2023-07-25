@@ -23,7 +23,7 @@ const MessagesWindow = () => {
 
   return (
     <Row className="mb-2 p-2 mh-250">
-      <Col className="border rounded mh-250">
+      <Col id="MessagesWindow">
         <div id="chatWindow" className="p-2">
           {allMessages.map((message, index) => {
             return (
