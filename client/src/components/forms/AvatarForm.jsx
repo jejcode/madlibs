@@ -13,30 +13,31 @@ import greyAvatar from "../../assets/grey_icon.png";
 const AvatarForm = (props) => {
   const navigate = useNavigate();
   const avatarList = [
-    blueAvatar,
-    redAvatar,
-    yellowAvatar,
-    greenAvatar,
-    purpleAvatar,
-    greyAvatar,
+    { color: "blue", image: blueAvatar },
+    { color: "red", image: redAvatar },
+    { color: "yellow", image: yellowAvatar },
+    { color: "green", image: greenAvatar },
+    { color: "purple", image: purpleAvatar },
+    { color: "grey", image: greyAvatar },
   ];
 
-  const handleAvatarClick = (index) => {
-    sessionStorage.setItem('selectedColor', avatarList[index].slice(12))
+  const handleAvatarClick = (color) => {
+    sessionStorage.setItem('selectedColor', color);
+    console.log(sessionStorage.getItem('selectedColor'));
     navigate("/dashboard");
   };
   return (
     <Container>
       <h3 className="d-flex justify-content-center">Choose an avatar:</h3>
       <Row className="justify-content-center">
-        <Col>
+        <Col id="avatar-list">
           {avatarList.map((avatar, index) => {
             return (
               <img
                 key={index}
                 className="m-2"
-                src={avatar}
-                onClick={() => handleAvatarClick(index)}
+                src={avatar.image}
+                onClick={() => handleAvatarClick(avatar.color)}
               />
             );
           })}

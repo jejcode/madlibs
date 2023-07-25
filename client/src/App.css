@@ -2,6 +2,13 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 0;
+  background-color: #ff598f;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+body {
+
 }
 
 img:hover {
@@ -9,20 +16,57 @@ img:hover {
 }
 
 #chatWindow {
-  height: 150px;
-  max-height: 150px;
+  height: 230px;
+  max-height: 230px;
   overflow: auto;
 }
 
-#dashboard {
-  height: 400px;
+#avatar-list{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: 10px;
+  background-color: #f5f5f5;
+  box-shadow: 3px 3px 3px 3px rgb(37, 37, 37);
+  border-radius: 5px;
+  padding: 10px;
 }
 .user-icon{
   height: 30px;
 }
+.small-banner{
+  height: 50px;
+}
 
 #gameBoard {
-  height: 300px;
-  max-height: 300px;
+  height: 80vh;
+  max-height: 80vh;
   overflow: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f5f5f5;
+  background-color: #ffd700;
+  box-shadow: 3px 3px 3px 3px rgb(37, 37, 37);
+}
+
+#MessagesWindow {
+  background-color: lightgray;
+  border: black 1px solid;
+  border-radius: 5px;
+}
+
+#ChatView{
+  background-color: #15b2d3;
+  box-shadow: 3px 3px 3px 3px rgb(37, 37, 37);
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#UserList {
+  margin: 10px;
+  background-color: #f5f5f5;
+  box-shadow: 3px 3px 3px 3px rgb(37, 37, 37);
+  border-radius: 5px;
 }

@@ -30,11 +30,10 @@ const UserItem = ({ name }) => {
     const avatar = getAvatarImage(selectedColor);
 
     return (
-        <li>
+        <div className='m-3'>
             <img src={avatar} className='user-icon' alt='User Icon'></img>
             <span> {name} </span>
-            <span> {selectedColor} </span>
-        </li>
+        </div>
     );
 };
 

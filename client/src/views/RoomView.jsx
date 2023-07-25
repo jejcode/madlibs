@@ -5,8 +5,9 @@ import GameBoard from "../components/gameboard/gameboard";
 import UserList from "../components/room/UserList";
 import { SocketContext } from "../contexts/socket";
 import { UserContext } from "../contexts/users";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import madLibBanner from "../assets/madLibBanner.png";
 
 const RoomView = () => {
   const name = sessionStorage.getItem("name");
@@ -25,7 +26,7 @@ const RoomView = () => {
 
   useEffect(() => {
     // test to see if sockets are working
-    socket.emit("USER_JOINED_ROOM", { roomId, name });
+    socket.emit("USER_JOINED_ROOM", { roomId: roomId, name: name, colorSelected: sessionStorage.getItem('selectedColor') });
 
     socket.on("JOIN_ROOM_ACCEPTED", (listOfUsers) => {
       console.log("List of users in room from server", listOfUsers);
@@ -38,13 +39,14 @@ const RoomView = () => {
   }, [socket]);
   return (
     <UserContext.Provider value={{ usersInRoom }}>
-      <h2>Room: {roomId}</h2>
+      <h2> <img src={madLibBanner} className="small-banner"></img> Room: {roomId}</h2>
       <Row>
         <Col xs="12" sm="12" md="8" lg="8" xl="8">
           <GameBoard />
-          <ChatView />
+
         </Col>
         <Col>
+          <ChatView />
           <UserList userList={usersInRoom} roomCode={roomId} />
         </Col>
       </Row>

@@ -3,8 +3,7 @@ import React from 'react';
 const MessagesDisplay = ({ messages }) => {
     console.log("Message Display:", messages);
     return (
-        <div>
-            <h2>Messages</h2>
+        <div id='MessageDisplay'>
             <ul>
                 {messages.map((message, index) => (
                     <li key={index}>

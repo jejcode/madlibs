@@ -26,12 +26,11 @@ const ChatView = () => {
 
   
   return (
-    <>
+    <div id='ChatView'>
       <h4>Game chat</h4>
-
       <MessagesWindow />
       <UniversalInputForm placeHolder="Type your message here" setAction={setMessage} buttonLabel="Send" />
-    </>
+    </div>
   )
 }
 
