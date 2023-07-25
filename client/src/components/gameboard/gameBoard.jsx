@@ -13,6 +13,7 @@ const GameBoard = () => {
   const [gameTemplate, setGameTemplate] = useState("");
   const [playerPrompts, setPlayerPrompts] = useState([]);
   const [currentPrompt, setCurrentPrompt] = useState({});
+  const [userFinished, setUserFinished] = useState(false)
 
   const startGame = () => {
     console.log("starting game");
@@ -33,7 +34,14 @@ const GameBoard = () => {
       limit: gameTemplate.prompts.length,
     });
   };
-
+  const getNextPrompt = () => {
+    setPlayerPrompts((prevPrompts) => {
+      const [firstPrompt, ...remainingPrompts] = prevPrompts;
+      setCurrentPrompt(firstPrompt);
+      return remainingPrompts;
+    });
+  };
+  
   useEffect(() => {
     socket.on("loading_game", (message) => {
       console.log(message);
@@ -53,16 +61,37 @@ const GameBoard = () => {
       const [firstPrompt, ...remainingPrompts] = playerPrompts;
       console.log('next prompt', firstPrompt)
       console.log('remaining prompts:', remainingPrompts)
-      setCurrentPrompt(firstPrompt);
-      setPlayerPrompts(remainingPrompts);
+      // setCurrentPrompt(firstPrompt);
+      // setPlayerPrompts(remainingPrompts);
+      // setUserFinished(true)
+      if (playerPrompts.length > 0) {
+        getNextPrompt();
+      } else {
+        setUserFinished(true);
+      }
+
+    })
+    socket.on('all_users_finished', (allUserInputs) => {
+      console.log(allUserInputs)
+      // convert userInputs into madlib solution
+      // madlib.title
+      // madlib.body
+      // allUserInputs
+      // iterate body and replace { } with allUserInputs[index]
+      let madLib = gameTemplate.body
+      for(let i = 0; i < gameTemplate.prompts.length; i++) {
+        madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, allUserInputs[i].input)
+      }
+      setGameSolved(madLib)
     })
 
     return () => {
       socket.off("loading_game");
       socket.off("distrinute_madlib");
-      socket.off("input_recieved")
+      socket.off("input_received")
+      socket.off("all_users_finished")
     };
-  }, [socket, currentPrompt]);
+  }, [socket,currentPrompt]);
 
   return (
     <div
@@ -78,13 +107,22 @@ const GameBoard = () => {
           ) : (
             <>
               {!gameSolved ? (
-                <UniversalInputForm
-                  placeHolder={`Enter a(n) ${currentPrompt.prompt}`}
-                  setAction={saveUserInput}
-                  buttonLabel="Next"
-                />
+                <>
+                  {!userFinished ? 
+                    <UniversalInputForm
+                      placeHolder={`Enter a(n) ${currentPrompt.prompt}`}
+                      setAction={saveUserInput}
+                      buttonLabel="Next"
+                    />
+                  :
+                    <p>Waiting for others to finish...</p>
+                  }
+                </>
               ) : (
-                <div>Game solved</div>
+                <div>
+                  <h3>{gameTemplate.title}</h3>
+                  <p>{gameSolved}</p>
+                </div>
               )}
             </>
           )}
