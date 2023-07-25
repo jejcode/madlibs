@@ -6,7 +6,7 @@ import greenAvatar from "../../assets/green_icon.png";
 import purpleAvatar from "../../assets/purple_icon.png";
 import greyAvatar from "../../assets/grey_icon.png";
 
-const UserItem = ({ name }) => {
+const UserItem = ({ name, color }) => {
     const getAvatarImage = (color) => {
         switch (color) {
             case "blue":
@@ -26,13 +26,12 @@ const UserItem = ({ name }) => {
         }
     };
 
-    const selectedColor = sessionStorage.getItem('selectedColor');
-    const avatar = getAvatarImage(selectedColor);
+    const avatar = getAvatarImage(color);
 
     return (
         <div className='m-3'>
             <img src={avatar} className='user-icon' alt='User Icon'></img>
-            <span> {name} </span>
+            <span><strong>{name}</strong></span>
         </div>
     );
 };
