@@ -31,24 +31,8 @@ const GameBoard = () => {
     setCurrentPrompt({});
     setUserFinished(false);
     socket.emit("RESET_GAME", { name, roomId });
+    socket.emit("start_game", { name, roomId });
   };
-
-  useEffect(() => {
-    socket.on("RESET_GAME", () => {
-      // Reset the game state
-      setGameStarted(false);
-      setGameLoaded(false);
-      setGameSolved(false);
-      setGameTemplate("");
-      setPlayerPrompts([]);
-      setCurrentPrompt({});
-      setUserFinished(false);
-  
-      // Start a new game
-      startGame();
-    });
-  }, [socket, currentPrompt]);
-
 
   const saveUserInput = (input) => {
     const inputWithIndex = {
@@ -117,12 +101,24 @@ const GameBoard = () => {
       setGameSolved(madLib)
     })
 
+    socket.on("RESET_GAME", () => {
+      // Reset the game state
+      setGameStarted(false);
+      setGameLoaded(false);
+      setGameSolved(false);
+      setGameTemplate("");
+      setPlayerPrompts([]);
+      setCurrentPrompt({});
+      setUserFinished(false);
+    });
+
 
     return () => {
       socket.off("loading_game");
       socket.off("distrinute_madlib");
       socket.off("input_received")
       socket.off("all_users_finished")
+      socket.off("RESET_GAME");
     };
   }, [socket, currentPrompt]);
 
