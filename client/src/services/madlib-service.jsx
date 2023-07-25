@@ -4,14 +4,15 @@ const instance = axios.create({
   baseURL: "http://localhost:8000/api",
 });
 
-const createNewMadLib = async (req, res) => {
+const createNewMadLib = async (req) => {
   try {
-    const newMadLib = await instance.post("templates/new", req.body)
+    console.log(req)
+    const newMadLib = await instance.post("/templates/new", req)
     return newMadLib.data
     
   } catch (error) {
-    console.log(error)
-    return res.json(error)
+    console.log(error.response.data.errors)
+    throw error.response.data.errors
   }
 
 }
