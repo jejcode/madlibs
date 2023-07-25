@@ -29,7 +29,7 @@ const UserItem = ({ name, color }) => {
     const avatar = getAvatarImage(color);
 
     return (
-        <div className='m-3'>
+        <div>
             <img src={avatar} className='user-icon' alt='User Icon'></img>
             <span><strong>{name}</strong></span>
         </div>
