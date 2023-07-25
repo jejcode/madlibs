@@ -122,6 +122,7 @@ const GameBoard = () => {
                 <div>
                   <h3>{gameTemplate.title}</h3>
                   <p>{gameSolved}</p>
+                  <Button onClick={startGame}>Play again!</Button>
                 </div>
               )}
             </>

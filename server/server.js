@@ -62,6 +62,7 @@ async function serverStart() {
           socket.emit("ROOM_REQUEST_ACCEPTED", roomId)
 
         }
+      })
       socket.on('RANDOM_ROOM_REQUEST', reqName => {
         const roomCodes = Object.keys(rooms)
         const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
@@ -157,22 +158,20 @@ async function serverStart() {
 
       // When a user disconnects
       socket.on("disconnect", () => {
-        console.log('User disconnected: ' + socket.id);
-        // Get the user's name and room
-        const user = users[socket.id];
-        const name = user ? user.name : null;
-        const room = user ? user.room : null;
-        // Get the list of rooms the user is currently in
-        const rooms = Object.keys(socket.rooms);
-        // Decrement the user count for each room the user is in
-        rooms.forEach(roomCode => {
-            if (activeRooms[roomCode]) {
-                activeRooms[roomCode].userCount--;
-                // If the user count becomes zero, remove the room from activeRooms
-                if (activeRooms[roomCode].userCount === 0) {
-                    delete activeRooms[roomCode];
-                    console.log("Active Rooms:", activeRooms)
-                }
+        console.log("User Disconnected", socket.id);
+
+        // Find the room the user was in
+        for (let room in rooms) {
+          let index = rooms[room].indexOf(socket.id);
+
+          // If the user was in this room
+          if (index !== -1) {
+            // Remove the user from the room
+            rooms[room].splice(index, 1);
+
+            // If the room is now empty, delete it
+            if (rooms[room].length === 0) {
+              delete rooms[room];
             }
 
             // Notify the other users in the room
