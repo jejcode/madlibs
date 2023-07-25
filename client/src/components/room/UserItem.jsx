@@ -1,10 +1,10 @@
 import React from 'react';
-import blueAvatar from "../assets/blue_icon.png";
-import redAvatar from "../assets/red_icon.png";
-import yellowAvatar from "../assets/yellow_icon.png";
-import greenAvatar from "../assets/green_icon.png";
-import purpleAvatar from "../assets/purple_icon.png";
-import greyAvatar from "../assets/grey_icon.png";
+import blueAvatar from "../../assets/blue_icon.png";
+import redAvatar from "../../assets/red_icon.png";
+import yellowAvatar from "../../assets/yellow_icon.png";
+import greenAvatar from "../../assets/green_icon.png";
+import purpleAvatar from "../../assets/purple_icon.png";
+import greyAvatar from "../../assets/grey_icon.png";
 
 const UserItem = ({ name }) => {
     const getAvatarImage = (color) => {
