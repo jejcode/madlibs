@@ -28,7 +28,7 @@ const RoomView = () => {
 
   useEffect(() => {
     // test to see if sockets are working
-    socket.emit("USER_JOINED_ROOM", { roomId, name });
+    socket.emit("USER_JOINED_ROOM", { roomId: roomId, name: name, colorSelected: sessionStorage.getItem('selectedColor') });
 
     socket.on("JOIN_ROOM_ACCEPTED", (listOfUsers) => {
       console.log("List of users in room from server", listOfUsers);

@@ -22,6 +22,16 @@ const GameBoard = () => {
     socket.emit("start_game", { name, roomId });
   };
 
+  const resetGame = () => {
+    setGameStarted(false);
+    setGameLoaded(false);
+    setGameSolved(false);
+    setGameTemplate("");
+    setPlayerPrompts([]);
+    setCurrentPrompt({});
+    setUserFinished(false);
+    socket.emit("RESET_GAME", { name, roomId });
+  };
 
   const saveUserInput = (input) => {
     const inputWithIndex = {
@@ -124,7 +134,7 @@ const GameBoard = () => {
                   <h3>{gameTemplate.title}</h3>
                   <p>{gameSolved}</p>
                   <p>MadLib Id: {gameTemplate._id}</p>
-                  <Button onClick={startGame}>Play again!</Button>
+                  <Button onClick={resetGame}>Play again!</Button>
 
                 </Card>
               )}

@@ -44,15 +44,16 @@ async function serverStart() {
       // Generates random room code,
       // creates a key:value pair in rooms {roomCode: [array of user names in that room]}
       // and returns the room code to the client for navigation
-      socket.on("CREATE_ROOM_REQUEST", (reqName) => {
-        
+      socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => {
         const newRoomCode = generateRoomCode(rooms);
         rooms[newRoomCode] = [reqName];
+        users[newRoomCode] = [{userName: reqName, colorSelected: reqColor}];
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
         socket.emit("CREATE_ROOM_SUCCESS", newRoomCode);
         socket.emit("JOIN_ROOM_ACCEPTED", rooms[newRoomCode]);
       });
+      
       socket.on("REQUEST_TO_JOIN_ROOM", info => {
         const { roomId } = info
         if (!rooms[roomId]) {
@@ -72,13 +73,19 @@ async function serverStart() {
       })
 
       socket.on("USER_JOINED_ROOM", info => {
-        const { roomId, name } = info
+        const { roomId, name, color } = info
         if (!rooms[roomId]) {
-          rooms[roomId] = [name]
-        } else if (rooms[roomId].indexOf(name) === -1) {
-          rooms[roomId].push(name)
+          rooms[roomId] = [name];
+          users[roomId] = [{userName: name, colorSelected: color}];
+        } else {
+          const userExists = rooms[roomId].indexOf(name) !== -1;
+          if (!userExists) {
+            rooms[roomId].push(name);
+            users[roomId].push({userName: name, colorSelected: color});
+          }
         }
         console.log("rooms = ", rooms)
+        console.log("users = ", users)
         socket.emit("JOIN_ROOM_ACCEPTED", rooms[roomId]); // sends back array of users in room
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", rooms[roomId])
         if (rooms[roomId].includes(name)) {
@@ -134,6 +141,18 @@ async function serverStart() {
         }
       })
 
+      socket.on("RESET_GAME", ({name, roomId}) => {
+        // Reset the game state for the room
+        if (madlibs[roomId]) {
+          madlibs[roomId] = [];
+        }
+        // You might also want to reset other game state here, if necessary
+      
+        // Start a new game
+        socket.emit("start_game", { name, roomId });
+      });
+      
+
       // When a user explicitly leaves a room
       socket.on("user_left_room", userInfo => {
         console.log('user left room', userInfo)
@@ -146,15 +165,17 @@ async function serverStart() {
         })
         if (rooms[userInfo.roomCode]) { // if room exists
           rooms[userInfo.roomCode] = rooms[userInfo.roomCode].filter(user => user !== userInfo.name) // remove user from room
+          users[userInfo.roomCode] = users[userInfo.roomCode].filter(user => user.userName !== userInfo.name) // remove user from users
         }
         // Store the length of the room before potentially deleting it
         const roomLength = rooms[userInfo.roomCode] ? rooms[userInfo.roomCode].length : 0;
         // If the room is now empty, delete it
         if (roomLength === 0) {
           delete rooms[userInfo.roomCode];
+          delete users[userInfo.roomCode];
         }
         io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", rooms[userInfo.roomCode]);
-      })
+      });
 
       // When a user disconnects
       socket.on("disconnect", () => {

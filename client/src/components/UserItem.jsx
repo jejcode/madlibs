@@ -33,7 +33,6 @@ const UserItem = ({ name }) => {
         <div className='m-3'>
             <img src={avatar} className='user-icon' alt='User Icon'></img>
             <span> {name} </span>
-            <span> {selectedColor} </span>
         </div>
     );
 };
