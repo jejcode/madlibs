@@ -33,12 +33,12 @@ const DashboardView = () => {
 
   const createRoom = () => {
     // Emit the room code to the server to create a new room
-    socket.emit("CREATE_ROOM_REQUEST", name);
+    socket.emit("CREATE_ROOM_REQUEST", name, selectedColor);
   };
 
   const handleRandom = () => {
     // Emit the room code to the server to create a new room
-    socket.emit("RANDOM_ROOM_REQUEST", name);
+    socket.emit("RANDOM_ROOM_REQUEST", name, selectedColor);
     socket.off("RANDOM_ROOM_REQUEST");
   };
 

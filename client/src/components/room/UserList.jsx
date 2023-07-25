@@ -43,7 +43,7 @@ const UserList = (props) => {
     
       <Col id="UserList">
           {userList.map((user, index) => (
-            <UserItem key={index} name={user} />
+            <UserItem key={index} name={user.userName} color={user.colorSelected} />
           ))}
         <Button variant="outline-danger" onClick={leaveRoom}>
           Leave Room

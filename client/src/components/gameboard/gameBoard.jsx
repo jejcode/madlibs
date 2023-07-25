@@ -33,6 +33,23 @@ const GameBoard = () => {
     socket.emit("RESET_GAME", { name, roomId });
   };
 
+  useEffect(() => {
+    socket.on("RESET_GAME", () => {
+      // Reset the game state
+      setGameStarted(false);
+      setGameLoaded(false);
+      setGameSolved(false);
+      setGameTemplate("");
+      setPlayerPrompts([]);
+      setCurrentPrompt({});
+      setUserFinished(false);
+  
+      // Start a new game
+      startGame();
+    });
+  }, [socket, currentPrompt]);
+
+
   const saveUserInput = (input) => {
     const inputWithIndex = {
       index: currentPrompt.index,
@@ -58,7 +75,12 @@ const GameBoard = () => {
       console.log(message);
       setGameStarted(true);
     });
+
     socket.on("distribute_madlib", (madlib) => {
+      if (!madlib) {
+        console.error("Received null madlib from server");
+        return;
+      }
       setGameTemplate(madlib);
       const [firstPrompt, ...remainingPrompts] = madlib.assignedPrompts[name];
       setCurrentPrompt(firstPrompt);
@@ -66,6 +88,7 @@ const GameBoard = () => {
       console.log(madlib);
       setGameLoaded(true)
     });
+    
     socket.on("input_received", (res) => {
       console.log('input receiving, getting next prompt...')
       const [firstPrompt, ...remainingPrompts] = playerPrompts;
@@ -79,7 +102,6 @@ const GameBoard = () => {
       } else {
         setUserFinished(true);
       }
-
     })
     socket.on('all_users_finished', (allUserInputs) => {
       console.log(allUserInputs)
@@ -94,6 +116,7 @@ const GameBoard = () => {
       }
       setGameSolved(madLib)
     })
+
 
     return () => {
       socket.off("loading_game");
