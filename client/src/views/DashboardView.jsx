@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Card from "react-bootstrap/Card"
 import Modal from "react-bootstrap/Modal";
 import UniversalInputForm from "../components/forms/UniversalInputForm";
 import { SocketContext } from "../contexts/socket";
@@ -66,19 +67,21 @@ const DashboardView = () => {
 
     };
   }, [socket]);
-  
+
   return (
     <>
       <Container>
         <Header />
         <Row id="dashboard" className="d-flex justify-content-center align-items-center">
           <Col xs="auto" sm="auto" md="auto" lg="auto">
-            <div>
-
-              <Button variant="secondary" onClick={handleShow}>
-                Join Room
-              </Button>
-              <Modal show={show} onHide={closeWithoutJoining} className="p-4">
+            <div id="dashboard-card">
+              <Button id="join-room-button" variant="secondary" onClick={handleShow}>Join Room</Button>
+              <Button id="create-room-button" variant="secondary" className="ms-4" onClick={createRoom}>Create Room</Button>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      <Modal show={show} onHide={closeWithoutJoining} >
                 <Modal.Body>
                   <UniversalInputForm
                     setAction={handleClose}
@@ -92,13 +95,6 @@ const DashboardView = () => {
                   </Button>
                 </Modal.Footer>
               </Modal>
-              <Button variant="secondary" className="ms-4" onClick={createRoom}>
-                Create Room
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </Container>
     </>
   );
 };

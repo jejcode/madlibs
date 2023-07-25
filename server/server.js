@@ -66,11 +66,17 @@ async function serverStart() {
       })
       socket.on('RANDOM_ROOM_REQUEST', reqName => {
         const roomCodes = Object.keys(rooms)
-        const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
-        rooms[randomRoomCode].push(reqName)
-        socket.join(randomRoomCode)
-        socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
+        if (roomCodes.length === 0) {
+          // handle the case when there are no rooms available
+          socket.emit("ROOM_REQUEST_DENIED", "No rooms available");
+        } else {
+          const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
+          rooms[randomRoomCode].push(reqName)
+          socket.join(randomRoomCode)
+          socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
+        }
       })
+      
 
       socket.on("USER_JOINED_ROOM", info => {
         const { roomId, name, color } = info
