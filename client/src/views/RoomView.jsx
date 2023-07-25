@@ -14,7 +14,7 @@ const RoomView = () => {
   const socket = useContext(SocketContext);
   const { roomId } = useParams();
   const [usersInRoom, setUsersInRoom] = useState([]);
-
+  sessionStorage.setItem('room', roomId)
   useBeforeUnload(
     useCallback(() => {
       socket.emit("user_left_room", {
