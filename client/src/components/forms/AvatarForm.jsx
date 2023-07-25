@@ -29,7 +29,7 @@ const AvatarForm = (props) => {
     <Container>
       <h3 className="d-flex justify-content-center">Choose an avatar:</h3>
       <Row className="justify-content-center">
-        <Col>
+        <Col id="avatar-list">
           {avatarList.map((avatar, index) => {
             return (
               <img

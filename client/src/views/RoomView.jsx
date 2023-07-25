@@ -7,6 +7,7 @@ import { SocketContext } from "../contexts/socket";
 import { UserContext } from "../contexts/users";
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import madLibBanner from "../assets/madLibBanner.png";
 
 const RoomView = () => {
   const name = sessionStorage.getItem("name");
@@ -40,13 +41,14 @@ const RoomView = () => {
   }, [socket]);
   return (
     <UserContext.Provider value={{ usersInRoom }}>
-      <h2>Room: {roomId}</h2>
+      <h2> <img src={madLibBanner} className="small-banner"></img> Room: {roomId}</h2>
       <Row>
         <Col xs="12" sm="12" md="8" lg="8" xl="8">
           <GameBoard />
-          <ChatView />
+
         </Col>
         <Col>
+          <ChatView />
           <UserList userList={usersInRoom} roomCode={roomId} />
         </Col>
       </Row>

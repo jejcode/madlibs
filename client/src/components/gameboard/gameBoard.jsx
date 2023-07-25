@@ -1,13 +1,14 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 import { SocketContext } from "../../contexts/socket";
 import UniversalInputForm from "../forms/UniversalInputForm";
 const GameBoard = () => {
   const { roomId } = useParams();
   const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);
-  const [gameStarted, setGameStarted] = useState(false); 
+  const [gameStarted, setGameStarted] = useState(false);
   const [gameLoaded, setGameLoaded] = useState(false);
   const [gameSolved, setGameSolved] = useState(false);
   const [gameTemplate, setGameTemplate] = useState("");
@@ -15,7 +16,7 @@ const GameBoard = () => {
   const [currentPrompt, setCurrentPrompt] = useState({});
   const [userFinished, setUserFinished] = useState(false)
 
-  const startGame = () => { 
+  const startGame = () => {
     console.log("starting game");
     setGameStarted(true);
     socket.emit("start_game", { name, roomId });
@@ -41,7 +42,7 @@ const GameBoard = () => {
       return remainingPrompts;
     });
   };
-  
+
   useEffect(() => {
     socket.on("loading_game", (message) => {
       console.log(message);
@@ -79,7 +80,7 @@ const GameBoard = () => {
       // allUserInputs
       // iterate body and replace { } with allUserInputs[index]
       let madLib = gameTemplate.body
-      for(let i = 0; i < gameTemplate.prompts.length; i++) {
+      for (let i = 0; i < gameTemplate.prompts.length; i++) {
         madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, allUserInputs[i].input)
       }
       setGameSolved(madLib)
@@ -91,7 +92,7 @@ const GameBoard = () => {
       socket.off("input_received")
       socket.off("all_users_finished")
     };
-  }, [socket,currentPrompt]);
+  }, [socket, currentPrompt]);
 
   return (
     <div
@@ -108,22 +109,24 @@ const GameBoard = () => {
             <>
               {!gameSolved ? (
                 <>
-                  {!userFinished ? 
+                  {!userFinished ?
                     <UniversalInputForm
                       placeHolder={`Enter a(n) ${currentPrompt.prompt}`}
                       setAction={saveUserInput}
                       buttonLabel="Next"
                     />
-                  :
+                    :
                     <p>Waiting for others to finish...</p>
                   }
                 </>
               ) : (
-                <div>
+                <Card className="p-3">
                   <h3>{gameTemplate.title}</h3>
                   <p>{gameSolved}</p>
+                  <p>MadLib Id: {gameTemplate._id}</p>
                   <Button onClick={startGame}>Play again!</Button>
-                </div>
+
+                </Card>
               )}
             </>
           )}

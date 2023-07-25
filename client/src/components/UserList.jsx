@@ -40,13 +40,11 @@ const UserList = (props) => {
   }, [socket, props.userList]);
 
   return (
-    <Row>
-      <Col>
-        <ul style={{ listStyleType: 'none' }}>
+    <Row id='UserList'>
+      <Col className='p-3'>
           {userList.map((user, index) => (
-            <UserItem key={index} name={user} />
+            <UserItem key={index} name={user}/>
           ))}
-        </ul>
         <Button variant="outline-danger" onClick={leaveRoom}>Leave Room</Button>
       </Col>
     </Row>
