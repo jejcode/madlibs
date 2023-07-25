@@ -14,6 +14,7 @@ const UserList = (props) => {
   const [userList, setUserList] = useState([]); // Use state to store the userList
 
   const leaveRoom = () => {
+    sessionStorage.removeItem('room')
     socket.emit("user_left_room", { name, roomCode });
     navigate(`/dashboard`);
   };

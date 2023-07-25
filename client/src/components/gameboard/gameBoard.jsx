@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { SocketContext } from "../../contexts/socket";
@@ -151,7 +151,7 @@ const GameBoard = () => {
                 <Card className="p-3">
                   <h3>{gameTemplate.title}</h3>
                   <p>{gameSolved}</p>
-                  <p>MadLib Id: {gameTemplate._id}</p>
+                  <Link to={`/madlibs/${gameTemplate._id}/edit`}>{gameTemplate._id}</Link>
                   <Button onClick={resetGame}>Play again!</Button>
 
                 </Card>

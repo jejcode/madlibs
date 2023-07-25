@@ -6,8 +6,9 @@ import RegisterView from "./views/RegisterView";
 import AddMadLibView from "./views/AddMadlibView";
 import Container from "react-bootstrap/Container";
 import DashboardView from "./views/DashboardView";
+import EditMadLibView from "./views/EditMadLibView";
 import {socket, SocketContext} from './contexts/socket'
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   const resetPage = () => {
     
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/dashboard" element={<DashboardView />} />
                 <Route path="/rooms/:roomId" element={<RoomView />} />
                 <Route path="/madlibs/new" element={<AddMadLibView />} />
+                <Route path="/madlibs/:madLibId/edit" element={<EditMadLibView />} />
             </Routes>
           </Router>
         </SocketContext.Provider>
