@@ -119,7 +119,7 @@ async function serverStart() {
 
         if(madlibs[roomId].length == limit) {
           // send responses to everybody in the room
-          io.to(roomId).emit('responses_available', madlibs[roomId]);
+          io.to(roomId).emit('all_users_finished', madlibs[roomId]);
         } else {
           // send permission to continue
           socket.emit('input_received',true)
