@@ -14,7 +14,9 @@ img:hover {
   overflow: auto;
 }
 
-
+#dashboard {
+  height: 400px;
+}
 .user-icon{
   height: 30px;
 }

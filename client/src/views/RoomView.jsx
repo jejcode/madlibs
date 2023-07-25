@@ -2,11 +2,11 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useParams, useBeforeUnload } from "react-router-dom";
 import ChatView from "./ChatView";
 import GameBoard from "../components/gameboard/gameboard";
-import UserList from "../components/UserList";
+import UserList from "../components/room/UserList";
 import { SocketContext } from "../contexts/socket";
 import { UserContext } from "../contexts/users";
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const RoomView = () => {
   const name = sessionStorage.getItem("name");
@@ -22,8 +22,6 @@ const RoomView = () => {
       });
     })
   );
-
-
 
   useEffect(() => {
     // test to see if sockets are working

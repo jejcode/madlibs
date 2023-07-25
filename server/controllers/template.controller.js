@@ -58,6 +58,16 @@ const getAllTemplates = async (req, res) => {
   }
 };
 
+const getTemplateById = async (req, res) => {
+  try {
+    const template = await instance.get(`templates/${req.body}`)
+    return template.data
+  } catch (error) {
+    console.log(error)
+    return res.status(400).json(error)
+  }
+}
+
 const deleteAllTemplates = async (req, res) => {
   try {
     const deletedTemplates = await Template.deleteMany()
@@ -67,4 +77,4 @@ const deleteAllTemplates = async (req, res) => {
   }
 }
 
-export { createTemplate, getAllTemplates, deleteAllTemplates };
+export { createTemplate, getAllTemplates, getTemplateById, deleteAllTemplates };
