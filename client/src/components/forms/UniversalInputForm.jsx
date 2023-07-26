@@ -29,7 +29,7 @@ const UniversalInputForm = (props) => {
           <Form.Control type="text" onChange={(e) => setLocalValue(e.target.value)} value={localValue} placeholder={placeHolder} autoFocus/>
         </Col>
         <Col xs="auto" sm="auto" md="auto" lg="auto" xl="auto">
-          <Button type="submit">{buttonLabel || 'Submit'}</Button>
+          <Button type="submit" variant="dark">{buttonLabel || 'Submit'}</Button>
         </Col>
       </Row>
     </Form>

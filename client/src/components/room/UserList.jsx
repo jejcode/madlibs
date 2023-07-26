@@ -47,7 +47,7 @@ const UserList = (props) => {
         <UserItem key={index} name={user.userName} color={user.colorSelected} />
       ))}
       <Row className="m-2">
-        <Button variant="outline-light" onClick={leaveRoom}>
+        <Button variant="outline-dark" onClick={leaveRoom}>
           Leave Room
         </Button>
       </Row>

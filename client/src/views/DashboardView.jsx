@@ -75,8 +75,8 @@ const DashboardView = () => {
         <Row id="dashboard" className="d-flex justify-content-center align-items-center">
           <Col xs="auto" sm="auto" md="auto" lg="auto">
             <div id="dashboard-card" className="d-flex justify-content-around">
-              <Button id="join-room-button" variant="secondary" onClick={handleShow}>Join Room</Button>
-              <Button id="create-room-button" variant="secondary" className="ms-4" onClick={createRoom}>Create Room</Button>
+              <Button id="join-room-button" variant="outline-dark" onClick={handleShow}>Join Room</Button>
+              <Button id="create-room-button" variant="outline-dark" className="ms-4" onClick={createRoom}>Create Room</Button>
             </div>
           </Col>
         </Row>
