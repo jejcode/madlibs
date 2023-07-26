@@ -74,6 +74,7 @@ async function serverStart() {
         const { roomId, name, color } = info
         if(!name) {
           socket.emit("JOIN_ROOM_DENIED", false)
+          return
         }
         if (!users[roomId]) {
           users[roomId] = [{ userName: name, colorSelected: color }];
