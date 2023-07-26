@@ -11,6 +11,7 @@ const RegisterView = () => {
 
   const registerNewUser = (userName) => {
     sessionStorage.setItem('name', userName)
+    localStorage.setItem('name', userName)
     setShowNameForm(false)
     setShowAvatarFrom(true)
   }

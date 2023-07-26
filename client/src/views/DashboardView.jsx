@@ -15,7 +15,6 @@ const DashboardView = () => {
   const socket = useContext(SocketContext);
   const name = sessionStorage.getItem("name");
   const selectedColor = sessionStorage.getItem("selectedColor");
-
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 

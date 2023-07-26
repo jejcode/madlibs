@@ -8,14 +8,19 @@ import { UserContext } from "../contexts/users";
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import madLibBanner from "../assets/madLibBanner.png";
-
+import { useNavigate } from "react-router-dom";
 const RoomView = () => {
+  const navigate = useNavigate()
+  console.log('session storage name:', sessionStorage.getItem('name'))
+  console.log('local storage name:', localStorage.getItem('name'))
   if(!sessionStorage.getItem('name')) {
     sessionStorage.getItem("name", localStorage.getItem('name)'))
     localStorage.removeItem('name')
   }
   const name = sessionStorage.getItem("name") || localStorage.getItem('name');
-  
+  if(!name) {
+    navigate('/')
+  }
   const socket = useContext(SocketContext);
   const { roomId } = useParams();
   const [usersInRoom, setUsersInRoom] = useState([]);
