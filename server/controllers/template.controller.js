@@ -45,7 +45,7 @@ const getTemplateById = async (req, res) => {
 
 const updateTemplateById = async (req, res) => {
   try {
-    console.log()
+    console.log(req.body)
     const objectToUpdate = req.body
     const updatedPrompts = pullPromptsFromText(objectToUpdate.body)
     objectToUpdate.prompts = updatedPrompts

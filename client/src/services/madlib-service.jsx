@@ -13,12 +13,21 @@ const createNewMadLib = async (req) => {
   }
 };
 
-const updateMadLibById = async (madLibId) => {
+const getMadLibById = async (madLibId) => {
   try {
-    const updatedMadLib = await instance.put(`/templates/${madLibId}/edit`);
+    const madLib = await instance.get(`/templates/${madLibId}/view`)
+    return madLib.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const updateMadLibById = async ({madLibId, ...formData}) => {
+  try {
+    const updatedMadLib = await instance.put(`/templates/${madLibId}/edit`, formData);
     console.log(updatedMadLib.data);
     return updatedMadLib.data;
   } catch (error) {}
 };
 
-export { createNewMadLib, updateMadLibById };
+export { createNewMadLib, getMadLibById, updateMadLibById };

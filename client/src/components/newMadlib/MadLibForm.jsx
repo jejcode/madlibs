@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import { createNewMadLib } from "../../services/madlib-service";
+import { createNewMadLib, updateMadLibById } from "../../services/madlib-service";
 const MadLibForm = (props) => {
-  const { edit, editTitle, editBody } = props;
+  const { edit, editTitle, editBody, madLibId } = props;
   const [title, setTitle] = useState(editTitle || "");
   const [body, setBody] = useState(editBody || "");
   const [titleErrors, setTitleErrors] = useState("");
@@ -79,12 +79,18 @@ const MadLibForm = (props) => {
       setBodyErrors(
         "Text must include balanced pairs of {}. Example: {noun} {verb} not {noun{verb}}"
       );
+        return
     } else {
       setBodyErrors("");
     }
     try {
-      const newMadLib = await createNewMadLib({ title, body });
-      navigate("/dashboard");
+      if(!edit) {
+        const newMadLib = await createNewMadLib({ title, body });
+        navigate("/dashboard");
+      } else {
+        const updatedMadLib = await updateMadLibById({madLibId, title, body})
+        navigate(`/rooms/${sessionStorage.getItem('room')}`)
+      }
     } catch (error) {
       console.log(error);
       setTitleErrors(error.title);
@@ -93,7 +99,7 @@ const MadLibForm = (props) => {
   };
   return (
     <Form onSubmit={handleSubmit}>
-      {titleErrors && <p className="text-danger">{titleErrors}</p>}
+      {titleErrors && <p className="text-white">{titleErrors}</p>}
       <Form.Control
         as="input"
         className="mb-2"
@@ -103,7 +109,7 @@ const MadLibForm = (props) => {
         }}
         value={title}
       />
-      {bodyErrors && <p className="text-danger">{bodyErrors}</p>}
+      {bodyErrors && <p className="text-white">{bodyErrors}</p>}
       <Form.Control
         as="textarea"
         rows="10"
@@ -116,7 +122,7 @@ const MadLibForm = (props) => {
         {/* {edit && (
         )} */}
         <Button variant="light" onClick={handleCancel}>
-          Cancel
+          Back
         </Button>
         <Button variant="outline-primary" type="submit">
           Save
