@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useParams, useBeforeUnload } from "react-router-dom";
 import ChatView from "./ChatView";
-import GameBoard from "../components/gameboard/gameboard";
+import GameBoard from "../components/gameboard/gameBoard";
 import UserList from "../components/room/UserList";
 import { SocketContext } from "../contexts/socket";
 import { UserContext } from "../contexts/users";
