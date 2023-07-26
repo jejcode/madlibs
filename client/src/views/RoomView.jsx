@@ -10,7 +10,12 @@ import Col from 'react-bootstrap/Col'
 import madLibBanner from "../assets/madLibBanner.png";
 
 const RoomView = () => {
-  const name = sessionStorage.getItem("name");
+  if(!sessionStorage.getItem('name')) {
+    sessionStorage.getItem("name", localStorage.getItem('name)'))
+    localStorage.removeItem('name')
+  }
+  const name = sessionStorage.getItem("name") || localStorage.getItem('name');
+  
   const socket = useContext(SocketContext);
   const { roomId } = useParams();
   const [usersInRoom, setUsersInRoom] = useState([]);
@@ -21,6 +26,7 @@ const RoomView = () => {
         name,
         roomCode: roomId,
       });
+      localStorage.setItem('name', name)
     })
   );
 
