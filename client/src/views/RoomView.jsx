@@ -36,6 +36,15 @@ const RoomView = () => {
   );
 
   useEffect(() => {
+    // Add event listener for beforeunload event
+    window.addEventListener('beforeunload', (event) => {
+      socket.emit("user_left_room", {
+        name,
+        roomCode: roomId,
+      });
+      localStorage.setItem('name', name)
+    });
+
     // test to see if sockets are working
     socket.emit("USER_JOINED_ROOM", { roomId: roomId, name: name, colorSelected: sessionStorage.getItem('selectedColor') });
 
@@ -46,6 +55,15 @@ const RoomView = () => {
     return () => {
       // Every socket.on needs a corresponding socket.off
       socket.off("JOIN_ROOM_ACCEPTED");
+
+      // Remove the event listener when the component is unmounted
+      window.removeEventListener('beforeunload', (event) => {
+        socket.emit("user_left_room", {
+          name,
+          roomCode: roomId,
+        });
+        localStorage.setItem('name', name)
+      });
     };
   }, [socket]);
   return (
