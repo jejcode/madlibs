@@ -14,23 +14,25 @@ const Header = () => {
   return (
     <Container id="header">
       <Row>
-        <Col>
+        <Col xs="auto" sm="auto" md="auto" lg="auto" xl="auto" className="justify-content-between">
           <img src={logo} width="70px" />
         </Col>
-        <Col xs="auto" sm="auto" md="auto" lg="auto" xl="auto" className="p-3">
-          <Link to="/madlibs/new">
-            <Button variant="outline-secondary" id="import-button">
-              Import MadLib
+        <Col>
+          <div className="p-3 d-flex justify-content-end">
+            <Link to="/madlibs/new">
+              <Button variant="outline-secondary" id="import-button">
+                Import MadLib
+              </Button>
+            </Link>
+            <Button
+              id="logout-button"
+              className="ms-4"
+              variant="outline-secondary"
+              onClick={logout}
+            >
+              Logout
             </Button>
-          </Link>
-          <Button
-            id="logout-button"
-            className="ms-4"
-            variant="outline-secondary"
-            onClick={logout}
-          >
-            Logout
-          </Button>
+          </div>
         </Col>
       </Row>
       <hr />

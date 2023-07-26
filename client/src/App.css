@@ -93,7 +93,7 @@ img:hover {
 }
 
 #dashboard-card{
-  min-width: 500px;
+  max-width: 500px;
   margin:20px;
   padding:100px;
   background-color: #ffd700;
