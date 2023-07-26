@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import DeleteModal from "./DeleteModal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import { createNewMadLib, updateMadLibById } from "../../services/madlib-service";
+import { useNavigate } from "react-router-dom";
+import {
+  createNewMadLib,
+  updateMadLibById,
+} from "../../services/madlib-service";
+
 const MadLibForm = (props) => {
   const { edit, editTitle, editBody, madLibId } = props;
   const [title, setTitle] = useState(editTitle || "");
@@ -12,7 +17,6 @@ const MadLibForm = (props) => {
 
   const navigate = useNavigate();
 
-  
   const handleTitleChange = (typedTitle) => {
     if (typedTitle.length < 2) {
       setTitleErrors("Title must be at least two characters");
@@ -63,12 +67,12 @@ const MadLibForm = (props) => {
   };
 
   const handleCancel = () => {
-    if(edit) {
-      navigate(`/rooms/${sessionStorage.getItem('room')}`)
+    if (edit) {
+      navigate(`/rooms/${sessionStorage.getItem("room")}`);
     } else {
-      navigate(`/dashboard`)
+      navigate(`/dashboard`);
     }
-  }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (body.length < 100) {
@@ -79,17 +83,17 @@ const MadLibForm = (props) => {
       setBodyErrors(
         "Text must include balanced pairs of {}. Example: {noun} {verb} not {noun{verb}}"
       );
-        return
+      return;
     } else {
       setBodyErrors("");
     }
     try {
-      if(!edit) {
+      if (!edit) {
         const newMadLib = await createNewMadLib({ title, body });
         navigate("/dashboard");
       } else {
-        const updatedMadLib = await updateMadLibById({madLibId, title, body})
-        navigate(`/rooms/${sessionStorage.getItem('room')}`)
+        const updatedMadLib = await updateMadLibById({ madLibId, title, body });
+        navigate(`/rooms/${sessionStorage.getItem("room")}`);
       }
     } catch (error) {
       console.log(error);
@@ -98,37 +102,42 @@ const MadLibForm = (props) => {
     }
   };
   return (
-    <Form onSubmit={handleSubmit}>
-      {titleErrors && <p className="text-white">{titleErrors}</p>}
-      <Form.Control
-        as="input"
-        className="mb-2"
-        placeholder="Enter title"
-        onChange={(e) => {
-          handleTitleChange(e.target.value);
-        }}
-        value={title}
-      />
-      {bodyErrors && <p className="text-white">{bodyErrors}</p>}
-      <Form.Control
-        as="textarea"
-        rows="10"
-        className="mb-2"
-        onChange={(e) => handleBodyChange(e.target.value)}
-        value={body}
-        placeholder="Enter MadLib text here. Use {} around the word you'd like replace. For example: I walked to {noun}."
-      />
-      <div className="d-flex justify-content-end">
-        {/* {edit && (
-        )} */}
-        <Button variant="light" onClick={handleCancel}>
-          Back
-        </Button>
-        <Button variant="outline-primary" type="submit">
-          Save
-        </Button>
-      </div>
-    </Form>
+    <>
+      <Form onSubmit={handleSubmit}>
+        {titleErrors && <p className="text-white">{titleErrors}</p>}
+        <Form.Control
+          as="input"
+          className="mb-2"
+          placeholder="Enter title"
+          onChange={(e) => {
+            handleTitleChange(e.target.value);
+          }}
+          value={title}
+        />
+        {bodyErrors && <p className="text-white">{bodyErrors}</p>}
+        <Form.Control
+          as="textarea"
+          rows="10"
+          className="mb-2"
+          onChange={(e) => handleBodyChange(e.target.value)}
+          value={body}
+          placeholder="Enter MadLib text here. Use {} around the word you'd like replace. For example: I walked to {noun}."
+        />
+        <div className="d-flex justify-content-end">
+          <Button variant="outline-light" className="mx-4" onClick={handleCancel}>
+            Back
+          </Button>
+          <Button variant="outline-dark" type="submit">
+            Save
+          </Button>
+        </div>
+      </Form>
+      {edit && (
+        <div className="">
+          <DeleteModal madLibId={madLibId}/>
+        </div>
+      )}
+    </>
   );
 };
 

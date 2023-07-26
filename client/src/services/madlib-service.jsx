@@ -30,4 +30,13 @@ const updateMadLibById = async ({madLibId, ...formData}) => {
   } catch (error) {}
 };
 
-export { createNewMadLib, getMadLibById, updateMadLibById };
+const deleteMadLibById = async (madLibId) => {
+  try {
+    const deletedMadLib = await instance.delete(`/templates/${madLibId}/delete`)
+    return deletedMadLib.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { createNewMadLib, deleteMadLibById, getMadLibById, updateMadLibById };

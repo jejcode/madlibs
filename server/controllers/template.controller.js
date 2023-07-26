@@ -13,8 +13,8 @@ const createTemplate = async (req, res) => {
       }
       return res.status(400).json({ errors });
     }
-    const prompts = pullPromptsFromText(req.body.body)
-    
+    const prompts = pullPromptsFromText(req.body.body);
+
     const postObj = { ...req.body, prompts };
     const newMadlib = await Template.create(postObj);
     return res.json(newMadlib);
@@ -45,16 +45,15 @@ const getTemplateById = async (req, res) => {
 
 const updateTemplateById = async (req, res) => {
   try {
-    console.log(req.body)
-    const objectToUpdate = req.body
-    const updatedPrompts = pullPromptsFromText(objectToUpdate.body)
-    objectToUpdate.prompts = updatedPrompts
-    console.log('updating with object', objectToUpdate)
+    console.log(req.body);
+    const objectToUpdate = req.body;
+    const updatedPrompts = pullPromptsFromText(objectToUpdate.body);
+    objectToUpdate.prompts = updatedPrompts;
+    console.log("updating with object", objectToUpdate);
     const template = await Template.findOneAndUpdate(
       { _id: req.params.templateId },
       objectToUpdate,
-      { new: true,
-      runValidators: true }
+      { new: true, runValidators: true }
     );
     return res.json(template);
   } catch (error) {
@@ -63,17 +62,13 @@ const updateTemplateById = async (req, res) => {
   }
 };
 
-const updateMenu = async (req, res) => {
+const deleteMadLibById = async (req, res) => {
   try {
-    const updatedMenu = await Menu.findOneAndUpdate(
-      { _id: req.params.id },
-      req.body,
-      { new: true },
-      { runValidators: true }
-    );
-    return res.json(updatedMenu);
-  } catch (err) {
-    res.status(400).json(err);
+    const madLibId = req.params.templateId;
+    const deletedMadLib = await Template.findByIdAndDelete({ _id: madLibId });
+    return res.json(deletedMadLib)
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -86,4 +81,11 @@ const deleteAllTemplates = async (req, res) => {
   }
 };
 
-export { createTemplate, getAllTemplates, getTemplateById, deleteAllTemplates, updateTemplateById };
+export {
+  createTemplate,
+  getAllTemplates,
+  getTemplateById,
+  deleteMadLibById,
+  deleteAllTemplates,
+  updateTemplateById,
+};
