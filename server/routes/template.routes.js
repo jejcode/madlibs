@@ -9,6 +9,7 @@ import {
 const templateRouter = Router();
 
 templateRouter.get("/all", getAllTemplates);
+templateRouter.get("/:templateId/view", getTemplateById)
 templateRouter.post("/new", createTemplate);
 templateRouter.put("/:templateId/edit", updateTemplateById);
 templateRouter.delete("/delete/all", deleteAllTemplates);
