@@ -128,7 +128,7 @@ const GameBoard = () => {
       className="d-flex align-items-center justify-content-center border rounded"
     >
       {!gameStarted ? (
-        <Button onClick={startGame}>Let's play!</Button>
+        <Button variant="dark" onClick={startGame}>Let's play!</Button>
       ) : (
         <>
           {!gameLoaded ? (
@@ -152,7 +152,7 @@ const GameBoard = () => {
                   <h3>{gameTemplate.title}</h3>
                   <p>{gameSolved}</p>
                   <Link className="mb-4" to={`/madlibs/${gameTemplate._id}/edit`}>{gameTemplate._id}</Link>
-                  <Button onClick={resetGame}>Play again!</Button>
+                  <Button variant="dark" onClick={resetGame}>Play again!</Button>
 
                 </Card>
               )}
