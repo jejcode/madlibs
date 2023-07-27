@@ -15,17 +15,18 @@ const RegisterView = () => {
     setShowNameForm(false)
     setShowAvatarFrom(true)
   }
+
   return (
     <Container>
       <h1 className="d-flex justify-content-center">Welcome to</h1>
       <div  className="d-flex justify-content-center">
-        <img src={madLibBanner} alt="MadLib Banner"/>
+        <img src={madLibBanner} className="img-fluid" alt="MadLib Banner"/>
       </div>
       <Row className="justify-content-center">
         <Col xs="11" sm="10" md="8" lg="6" xl="5">
           {showNameForm && (
             <UniversalInputForm
-              placeHolder={sessionStorage.name || "Enter a name to begin!"}
+              placeHolder="Enter a name to begin!"
               buttonLabel="Enter"
               setAction={registerNewUser}
             />

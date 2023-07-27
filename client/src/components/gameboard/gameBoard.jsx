@@ -158,7 +158,7 @@ const GameBoard = () => {
                       </>
                     ) : (
                       <Card className="p-3">
-                        <h3>{gameTemplate.title}</h3>
+                        <p className="h3">{gameTemplate.title}</p>
                         <p>{gameSolved}</p>
                         <Link className="mb-4" to={`/madlibs/${gameTemplate._id}/edit`}>{gameTemplate._id}</Link>
                         <Button variant="dark" onClick={resetGame}>Play again!</Button>
