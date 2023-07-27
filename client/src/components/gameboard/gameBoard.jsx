@@ -50,11 +50,15 @@ const GameBoard = () => {
   };
 
   useEffect(() => {
-    socket.on("GAME_AVAILABLE", res => {
-      setGameInProgress(true)
-      setGameStarted(true)
-      setGameLoaded(true)
-    })
+    // socket.on("GAME__AVAILABLE", res => {
+    //   setGameInProgress(false)
+    // })
+    
+    // socket.on("GAME_IN_PROGRESS", res => {
+    //   setGameInProgress(true)
+    //   setGameStarted(true)
+    //   setGameLoaded(true)
+    // })
     socket.on("loading_game", (message) => {
       console.log(message);
       setGameStarted(true);
