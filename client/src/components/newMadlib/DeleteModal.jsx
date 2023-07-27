@@ -14,6 +14,7 @@ const DeleteModal = (props) => {
 
   const handleDelete = async () => {
     try {
+      console.log(madLibId)
       const confirmDelete = await deleteMadLibById(madLibId)
       navigate(`/rooms/${sessionStorage.getItem("room")}`);
     } catch (error) {

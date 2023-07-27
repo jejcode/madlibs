@@ -62,7 +62,7 @@ const updateTemplateById = async (req, res) => {
   }
 };
 
-const deleteMadLibById = async (req, res) => {
+const deleteTemplateById = async (req, res) => {
   try {
     const madLibId = req.params.templateId;
     const deletedMadLib = await Template.findByIdAndDelete({ _id: madLibId });
@@ -71,6 +71,7 @@ const deleteMadLibById = async (req, res) => {
     console.log(error);
   }
 };
+
 
 const deleteAllTemplates = async (req, res) => {
   try {
@@ -85,7 +86,7 @@ export {
   createTemplate,
   getAllTemplates,
   getTemplateById,
-  deleteMadLibById,
+  deleteTemplateById,
   deleteAllTemplates,
   updateTemplateById,
 };
