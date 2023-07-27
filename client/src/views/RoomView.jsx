@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import madLibBanner from "../assets/madLibBanner.png";
 import { useNavigate } from "react-router-dom";
+
 const RoomView = () => {
   const navigate = useNavigate();
   console.log("session storage name:", sessionStorage.getItem("name"));
@@ -25,6 +26,7 @@ const RoomView = () => {
   const { roomId } = useParams();
   const [usersInRoom, setUsersInRoom] = useState([]);
   sessionStorage.setItem("room", roomId);
+
   useBeforeUnload(
     useCallback(() => {
       socket.emit("user_left_room", {
@@ -36,14 +38,6 @@ const RoomView = () => {
   );
 
   useEffect(() => {
-    // Add event listener for beforeunload event
-    window.addEventListener("beforeunload", (event) => {
-      socket.emit("user_left_room", {
-        name,
-        roomCode: roomId,
-      });
-      localStorage.setItem("name", name);
-    });
 
     // test to see if sockets are working
     socket.emit("USER_JOINED_ROOM", {
@@ -67,16 +61,10 @@ const RoomView = () => {
       socket.off("JOIN_ROOM_ACCEPTED");
       socket.off("JOIN_ROOM_DENIED");
 
-      // Remove the event listener when the component is unmounted
-      window.removeEventListener("beforeunload", (event) => {
-        socket.emit("user_left_room", {
-          name,
-          roomCode: roomId,
-        });
-        localStorage.setItem("name", name);
-      });
     };
   }, [socket]);
+
+  
   return (
     <UserContext.Provider value={{ usersInRoom }}>
       <h2>
