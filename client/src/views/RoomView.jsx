@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import madLibBanner from "../assets/madLibBanner.png";
 import { useNavigate } from "react-router-dom";
+
 const RoomView = () => {
   const navigate = useNavigate();
   console.log("session storage name:", sessionStorage.getItem("name"));
@@ -25,6 +26,7 @@ const RoomView = () => {
   const { roomId } = useParams();
   const [usersInRoom, setUsersInRoom] = useState([]);
   sessionStorage.setItem("room", roomId);
+
   useBeforeUnload(
     useCallback(() => {
       socket.emit("user_left_room", {
@@ -77,6 +79,8 @@ const RoomView = () => {
       });
     };
   }, [socket]);
+
+  
   return (
     <UserContext.Provider value={{ usersInRoom }}>
       <h2>

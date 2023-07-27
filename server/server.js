@@ -39,14 +39,16 @@ async function serverStart() {
     const users = {} // room#: [userNames]
     const madlibs = {} // room#: [input objects {index, input}]
     io.on("connection", (socket) => {
+
       socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => {
         const newRoomCode = generateRoomCode(users);
-        users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor }];
+        users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor, socketId: socket.id }];
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
         socket.emit("CREATE_ROOM_SUCCESS", newRoomCode);
         socket.emit("JOIN_ROOM_ACCEPTED", users[newRoomCode]);
       });
+
 
       socket.on("REQUEST_TO_JOIN_ROOM", info => {
         const { roomId } = info
@@ -64,30 +66,31 @@ async function serverStart() {
           socket.emit("ROOM_REQUEST_DENIED", "No rooms available");
         } else {
           const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
-          users[randomRoomCode].push({ userName: reqName, colorSelected: reqColor }) 
+          users[randomRoomCode].push({ userName: reqName, colorSelected: reqColor, socketId: socket.id })
           socket.join(randomRoomCode)
           socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
         }
       })
 
+
       socket.on("USER_JOINED_ROOM", info => {
         const { roomId, name, color } = info
-        if(!name) {
+        if (!name) {
           socket.emit("JOIN_ROOM_DENIED", false)
           return
         }
         if (!users[roomId]) {
-          users[roomId] = [{ userName: name, colorSelected: color }];
+          users[roomId] = [{ userName: name, colorSelected: color, socketId: socket.id }];
         } else {
-          const userExists = users[roomId].some(user => user.userName === name);
+          const userExists = users[roomId].some(user => user.socketId === socket.id);
           if (!userExists) {
-            users[roomId].push({ userName: name, colorSelected: color });
+            users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id });
           }
         }
         console.log("users = ", users)
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId])
-        if (users[roomId].some(user => user.userName === name)) {
+        if (users[roomId].some(user => user.socketId === socket.id)) {
           io.to(roomId).emit("new_message", {
             message: `${name} has joined the chat`,
             name: "Server",
@@ -96,6 +99,7 @@ async function serverStart() {
           });
         }
       })
+
 
       socket.on("new_message", (data) => {
         console.log(data.name, data.message, data.roomCode);
@@ -116,65 +120,97 @@ async function serverStart() {
           roomCode: userInfo.roomCode
         })
         if (users[userInfo.roomCode]) {
-          users[userInfo.roomCode] = users[userInfo.roomCode].filter(user => user.userName !== userInfo.name)
+          users[userInfo.roomCode] = users[userInfo.roomCode].filter(user => user.socketId !== socket.id)
         }
         const roomLength = users[userInfo.roomCode] ? users[userInfo.roomCode].length : 0;
         if (roomLength === 0) {
           delete users[userInfo.roomCode];
         }
-        io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", users[userInfo.roomCode] || []);
+        io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", users[userInfo.roomCode] || []); 
+      });
+
+      
+      socket.on("disconnect", () => {
+        console.log('user disconnected', socket.id)
+        // Find the room that the user was in
+        for (let roomId in users) {
+          let roomUsers = users[roomId];
+          if (roomUsers.some(user => user.socketId === socket.id)) {
+            // Find the user that disconnected
+            let disconnectedUser = roomUsers.find(user => user.socketId === socket.id);
+
+            // Remove the user from the room
+            users[roomId] = roomUsers.filter(user => user.socketId !== socket.id);
+
+            // Notify other users in the room
+            io.to(roomId).emit("new_message", {
+              message: `${disconnectedUser.userName} has left the chat`,
+              name: "Server",
+              isNewUser: true,
+              roomCode: roomId
+            });
+
+            // Update the user list for the room
+            io.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId] || []);
+
+            // If the room is empty, delete it
+            if (users[roomId].length === 0) {
+              delete users[roomId];
+            }
+            break;
+          }
+        }
       });
 
 
+      // game play sockets
+      socket.on("start_game", async ({ name, roomId }) => {
+        try {
+          io.to(roomId).emit("new_message", {
+            message: `${name} started the game!`,
+            name: name,
+            isNewUser: true
+          })
+          io.to(roomId).emit("loading_game", "Loading game...")
+          const completeMadlib = await getRandomTemplate(users[roomId])
+          console.log(completeMadlib)
+          io.to(roomId).emit("distribute_madlib", completeMadlib)
+        } catch (error) {
+          console.log(error);
+        }
+      })
 
-    // game play sockets
-    socket.on("start_game", async ({ name, roomId }) => {
-      try {
-        io.to(roomId).emit("new_message", {
-          message: `${name} started the game!`,
-          name: name,
-          isNewUser: true
-        })
-        io.to(roomId).emit("loading_game", "Loading game...")
-        const completeMadlib = await getRandomTemplate(users[roomId])
-        console.log(completeMadlib)
-        io.to(roomId).emit("distribute_madlib", completeMadlib)
-      } catch (error) {
-        console.log(error);
-      }
-    })
+      socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
+        console.log('user submitted input')
+        if (!madlibs[roomId]) {
+          madlibs[roomId] = [inputWithIndex]
+        } else {
+          madlibs[roomId].push(inputWithIndex)
+        }
+        console.log(madlibs[roomId])
+        if (madlibs[roomId].length == limit) {
+          // send responses to everybody in the room and remove them from storage
+          io.to(roomId).emit('all_users_finished', madlibs[roomId]);
+          delete madlibs[roomId]
+        } else {
+          // send permission to continue
+          socket.emit('input_received', true)
+        }
+      })
 
-    socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
-      console.log('user submitted input')
-      if (!madlibs[roomId]) {
-        madlibs[roomId] = [inputWithIndex]
-      } else {
-        madlibs[roomId].push(inputWithIndex)
-      }
-      console.log(madlibs[roomId])
-      if (madlibs[roomId].length == limit) {
-        // send responses to everybody in the room and remove them from storage
-        io.to(roomId).emit('all_users_finished', madlibs[roomId]);
-        delete madlibs[roomId]
-      } else {
-        // send permission to continue
-        socket.emit('input_received', true)
-      }
-    })
+      socket.on("RESET_GAME", ({ name, roomId }) => {
+        // Reset the game state for the room
+        if (madlibs[roomId]) {
+          madlibs[roomId] = [];
+        }
+        io.to(roomId).emit("RESET_GAME", { name, roomId });
+      });
 
-    socket.on("RESET_GAME", ({ name, roomId }) => {
-      // Reset the game state for the room
-      if (madlibs[roomId]) {
-        madlibs[roomId] = [];
-      }
-      io.to(roomId).emit("RESET_GAME", { name, roomId });
+
     });
-
-
-  });
-} catch (error) {
-  console.log(error);
-}
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 serverStart();

@@ -18,18 +18,12 @@ const GameBoard = () => {
 
   const startGame = () => {
     console.log("starting game");
+    socket.emit("RESET_GAME", { name, roomId });
     setGameStarted(true);
     socket.emit("start_game", { name, roomId });
   };
 
   const resetGame = () => {
-    setGameStarted(false);
-    setGameLoaded(false);
-    setGameSolved(false);
-    setGameTemplate("");
-    setPlayerPrompts([]);
-    setCurrentPrompt({});
-    setUserFinished(false);
     socket.emit("RESET_GAME", { name, roomId });
     socket.emit("start_game", { name, roomId });
   };
