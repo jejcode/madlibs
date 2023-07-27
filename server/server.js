@@ -88,7 +88,13 @@ async function serverStart() {
           }
         }
       
-
+        if(madlibs[roomId]) {
+          console.log('in play check: game is in play')
+          socket.emit("GAME_AVAILABLE", true)
+        } else {
+          console.log('in play check: game is not in play, you should see let us play')
+          socket.emit("GAME_IN_PROGRESS", true)
+        }
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         if (users[roomId].some(user => user.socketId === socket.id)) {
@@ -168,6 +174,7 @@ async function serverStart() {
       // game play sockets
       socket.on("start_game", async ({ name, roomId }) => {
         try {
+          madlibs[roomId] = []
           io.to(roomId).emit("new_message", {
             message: `${name} started the game!`,
             name: name,
@@ -183,12 +190,8 @@ async function serverStart() {
       })
 
       socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
+        madlibs[roomId].push(inputWithIndex)
         console.log('user submitted input')
-        if (!madlibs[roomId]) {
-          madlibs[roomId] = [inputWithIndex]
-        } else {
-          madlibs[roomId].push(inputWithIndex)
-        }
         console.log(madlibs[roomId])
         if (madlibs[roomId].length == limit) {
           // send responses to everybody in the room and remove them from storage
