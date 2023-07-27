@@ -35,7 +35,7 @@ async function serverStart() {
       },
     });
 
-    const rooms = {}; // room#: [userNames]
+    
     const users = {} // room#: [userNames]
     const madlibs = {} // room#: [input objects {index, input}]
     io.on("connection", (socket) => {
@@ -74,10 +74,10 @@ async function serverStart() {
 
 
       socket.on("USER_JOINED_ROOM", info => {
-        const { roomId, name, color } = info
+        const { roomId, name, color } = info;
         if (!name) {
-          socket.emit("JOIN_ROOM_DENIED", false)
-          return
+          socket.emit("JOIN_ROOM_DENIED", false);
+          return;
         }
         if (!users[roomId]) {
           users[roomId] = [{ userName: name, colorSelected: color, socketId: socket.id }];
@@ -87,9 +87,10 @@ async function serverStart() {
             users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id });
           }
         }
-        console.log("users = ", users)
+      
+
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
-        socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId])
+        socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         if (users[roomId].some(user => user.socketId === socket.id)) {
           io.to(roomId).emit("new_message", {
             message: `${name} has joined the chat`,
@@ -98,7 +99,8 @@ async function serverStart() {
             roomCode: roomId,
           });
         }
-      })
+      });
+      
 
 
       socket.on("new_message", (data) => {
