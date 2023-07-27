@@ -88,11 +88,9 @@ async function serverStart() {
           }
         }
       
-        // if(!madlibs[roomId]) {
-        //   socket.emit("GAME_IN_PROGRESS", true)
-        //   // console.log('in play check: game is in play')
-        //   // socket.emit("GAME_AVAILABLE", true)
-        // }
+        if(madlibs[roomId]) {
+          socket.emit("GAME_IN_PROGRESS", true)
+        }
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         if (users[roomId].some(user => user.socketId === socket.id)) {
