@@ -9,7 +9,7 @@ const generateRoomCode = (rooms) => {
   return newKey;
 };
 
-const distributePrompts = (prompts, users) => {
+const distributePrompts = (prompts, users) => { 
   const assignedPrompts = prompts.reduce((acc, prompt, index) => {
     const promptWithIndex = {
       index: index,

@@ -3,7 +3,7 @@ import express from "express";
 import { Server } from "socket.io";
 import dbConnect from "./mongo/dbConnect.js";
 import templateRouter from "./routes/template.routes.js";
-import { generateRoomCode } from "./utils/server-functions.js";
+import { distributePrompts, generateRoomCode } from "./utils/server-functions.js";
 import { getRandomTemplate } from "./services/template-service.js";
 const app = express();
 
@@ -35,9 +35,14 @@ async function serverStart() {
       },
     });
 
-    
+
     const users = {} // room#: [userNames]
     const madlibs = {} // room#: [input objects {index, input}]
+    const assignedPrompts = {}; // room#: {userName: [prompts]}
+    const completedPrompts = {}; // room#: {userName: [prompts]}
+
+
+
     io.on("connection", (socket) => {
 
       socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => {
@@ -87,7 +92,6 @@ async function serverStart() {
             users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id });
           }
         }
-      
 
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
@@ -100,8 +104,6 @@ async function serverStart() {
           });
         }
       });
-      
-
 
       socket.on("new_message", (data) => {
         console.log(data.name, data.message, data.roomCode);
@@ -114,33 +116,86 @@ async function serverStart() {
 
       socket.on("user_left_room", userInfo => {
         console.log('user left room', userInfo)
-        socket.leave(userInfo.roomCode)
-        io.to(userInfo.roomCode).emit("new_message", {
-          message: `${userInfo.name} has left the chat`,
-          name: "Server",
-          isNewUser: true,
-          roomCode: userInfo.roomCode
-        })
-        if (users[userInfo.roomCode]) {
-          users[userInfo.roomCode] = users[userInfo.roomCode].filter(user => user.socketId !== socket.id)
+        if (users[userInfo.roomCode]) { // if the room exists
+          const user = users[userInfo.roomCode].find(user => user.socketId === socket.id); // get the user
+          if (user) { // if the user exists
+            const userAssignedPrompts = assignedPrompts[userInfo.roomCode][user.userName]; // get the user's assigned prompts
+            console.log('userAssignedPrompts', userAssignedPrompts)
+            const userCompletedPrompts = completedPrompts[userInfo.roomCode][user.userName]; // get the user's completed prompts
+            console.log('userCompletedPrompts', userCompletedPrompts)
+            if (userAssignedPrompts.length !== userCompletedPrompts.length && userAssignedPrompts) { // if the user has not completed all of their prompts
+              console.log(`User ${user.userName} left before completing their prompts.`);
+              // assign the user's prompts to another user
+              const otherUsers = users[userInfo.roomCode].filter(user => user.socketId !== socket.id); // get the other users in the room
+              console.log('otherUsers', otherUsers)
+              //Distribtute the prompts to the other users
+
+              const leftOverPrompts = userAssignedPrompts.reduce((arr, prompt) => {
+                const prompter = userCompletedPrompts.find(completedPrompt => completedPrompt.index === prompt.index);
+                if (!prompter) {
+                  arr.push(prompt);
+                }
+                return arr;
+              }, [])
+              console.log('leftOverPrompts', leftOverPrompts)
+
+              if (leftOverPrompts.length > 0) {
+                const newPromptList = leftOverPrompts.reduce((obj, prompt, index) => {
+                  const currentUser = users[userInfo.roomCode][index % users[userInfo.roomCode].length]
+                  if (!obj[currentUser.userName]) {
+                    obj[currentUser.userName] = []
+                  } else {
+                    obj[currentUser.userName].push(prompt)
+                  }
+                  return obj;
+                }, {})
+
+                console.log('newPromptList', newPromptList)
+                io.to(userInfo.roomCode).emit("left_over_prompts", newPromptList)
+                assignedPrompts[userInfo.roomCode] = leftOverPrompts.assignedPrompts; // save the assigned prompts to the assignedPrompts object
+
+              }
+            }
+
+            if (users[userInfo.roomCode]) { // if the room exists
+              users[userInfo.roomCode] = users[userInfo.roomCode].filter(user => user.socketId !== socket.id) // remove the user from the room
+            }
+            const roomLength = users[userInfo.roomCode] ? users[userInfo.roomCode].length : 0; // get the length of the room
+            if (roomLength === 0) { // if the room is empty
+              delete users[userInfo.roomCode]; // delete the room
+            }
+            io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", users[userInfo.roomCode] || []); // send the updated room to the users
+          }
         }
-        const roomLength = users[userInfo.roomCode] ? users[userInfo.roomCode].length : 0;
-        if (roomLength === 0) {
-          delete users[userInfo.roomCode];
-        }
-        io.to(userInfo.roomCode).emit("JOIN_ROOM_ACCEPTED", users[userInfo.roomCode] || []); 
       });
 
-      
+
+
       socket.on("disconnect", () => {
         console.log('user disconnected', socket.id)
-        // Find the room that the user was in
-        for (let roomId in users) {
-          let roomUsers = users[roomId];
-          if (roomUsers.some(user => user.socketId === socket.id)) {
-            // Find the user that disconnected
-            let disconnectedUser = roomUsers.find(user => user.socketId === socket.id);
-
+        for (let roomId in users) { // for each room
+          let roomUsers = users[roomId]; // get the users in the room
+          if (roomUsers.some(user => user.socketId === socket.id)) { // if the user is in the room
+            let disconnectedUser = roomUsers.find(user => user.socketId === socket.id); // get the disconnected user
+            const userAssignedPrompts = assignedPrompts[roomId][disconnectedUser.userName]; // get the user's assigned prompts
+            const userCompletedPrompts = completedPrompts[roomId][disconnectedUser.userName]; // get the user's completed prompts
+            if (userAssignedPrompts.length !== userCompletedPrompts.length) { // if the user has not completed all of their prompts
+              console.log(`User ${disconnectedUser.userName} left before completing their prompts.`);
+            }
+            // assign the user's prompts to another user
+            const otherUsers = users[userInfo.roomCode].filter(user => user.socketId !== socket.id); // get the other users in the room
+            //Distribtute the prompts to the other users
+            for (let i = 0; i < userAssignedPrompts.length; i++) { // for each of the user's assigned prompts
+              const randomUserIndex = Math.floor(Math.random() * otherUsers.length); // get a random user index
+              const randomUser = otherUsers[randomUserIndex]; // get the random user
+              if (!assignedPrompts[userInfo.roomCode][randomUser.userName]) { // if the random user does not have any assigned prompts
+                assignedPrompts[userInfo.roomCode][randomUser.userName] = []; // create an empty array for the random user's assigned prompts
+              }
+              assignedPrompts[userInfo.roomCode][randomUser.userName].push(userAssignedPrompts[i]); // assign the prompt to the random user
+              otherUsers.splice(randomUserIndex, 1); // remove the random user from the other users array
+            }
+            delete assignedPrompts[roomId][disconnectedUser.userName];
+            delete completedPrompts[roomId][disconnectedUser.userName];
             // Remove the user from the room
             users[roomId] = roomUsers.filter(user => user.socketId !== socket.id);
 
@@ -168,37 +223,63 @@ async function serverStart() {
       // game play sockets
       socket.on("start_game", async ({ name, roomId }) => {
         try {
-          io.to(roomId).emit("new_message", {
+          io.to(roomId).emit("new_message", { // send a message to the room that the game has started
             message: `${name} started the game!`,
             name: name,
             isNewUser: true
           })
-          io.to(roomId).emit("loading_game", "Loading game...")
-          const completeMadlib = await getRandomTemplate(users[roomId])
-          console.log(completeMadlib)
-          io.to(roomId).emit("distribute_madlib", completeMadlib)
-        } catch (error) {
+          io.to(roomId).emit("loading_game", "Loading game...") // send a message to the room that the game is loading
+
+          const completeMadlib = await getRandomTemplate(users[roomId]) // get a random template
+
+          console.log("Here is the Madlib", completeMadlib)
+          io.to(roomId).emit("distribute_madlib", completeMadlib) // send the template to the room
+          assignedPrompts[roomId] = completeMadlib.assignedPrompts; // save the assigned prompts to the assignedPrompts object
+          console.log("Assigned Prompts", assignedPrompts)
+
+          if (!assignedPrompts[roomId]) { // if the room doesn't exist in the assignedPrompts object, create it
+            assignedPrompts[roomId] = {}; // create the room
+          }
+          assignedPrompts[roomId][name] = completeMadlib.assignedPrompts; // add the user's assigned prompts to the room
+          console.log("2nd Assigned Prompts", assignedPrompts);
+        } catch (error) { // if there is an error, log it
           console.log(error);
         }
-      })
+      });
+
+
 
       socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
         console.log('user submitted input')
-        if (!madlibs[roomId]) {
-          madlibs[roomId] = [inputWithIndex]
-        } else {
-          madlibs[roomId].push(inputWithIndex)
+        const user = users[roomId].find(user => user.socketId === socket.id); // find the user
+        if (user) { // if the user exists
+
+          if (!madlibs[roomId]) { // if the room doesn't exist in the madlibs object, create it
+            madlibs[roomId] = [inputWithIndex] // add the first input to the room
+          } else {
+            madlibs[roomId].push(inputWithIndex) // add the input to the room
+          }
+          if (!completedPrompts[roomId]) { // if the room doesn't exist in the completedPrompts object, create it
+            completedPrompts[roomId] = {}; // create the room
+          }
+          if (!completedPrompts[roomId][user.userName]) { // if the user doesn't exist in the room in the completedPrompts object, create it
+            completedPrompts[roomId][user.userName] = []; // create the user
+          }
+          completedPrompts[roomId][user.userName].push(inputWithIndex); // add the input to the user in the room
+          console.log("Completed Prompts", completedPrompts)
+
+          console.log("Madlib roomId", madlibs[roomId])
+          if (madlibs[roomId].length == limit) { // if the room has reached the limit of inputs
+            // send responses to everybody in the room and remove them from storage
+            io.to(roomId).emit('all_users_finished', madlibs[roomId]);
+            delete madlibs[roomId]
+          } else {
+            // send permission to continue
+            socket.emit('input_received', true)
+          }
         }
-        console.log(madlibs[roomId])
-        if (madlibs[roomId].length == limit) {
-          // send responses to everybody in the room and remove them from storage
-          io.to(roomId).emit('all_users_finished', madlibs[roomId]);
-          delete madlibs[roomId]
-        } else {
-          // send permission to continue
-          socket.emit('input_received', true)
-        }
-      })
+      });
+
 
       socket.on("RESET_GAME", ({ name, roomId }) => {
         // Reset the game state for the room

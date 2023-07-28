@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { SocketContext } from "../../contexts/socket";
 import UniversalInputForm from "../forms/UniversalInputForm";
+
 const GameBoard = () => {
   const { roomId } = useParams();
   const name = sessionStorage.getItem("name");
@@ -66,6 +67,15 @@ const GameBoard = () => {
       console.log(madlib);
       setGameLoaded(true)
     });
+
+    socket.on("left_over_prompts", prompts => {
+      setPlayerPrompts((prevPrompts) => {
+        return [...prevPrompts, ...prompts]
+        })
+        setUserFinished(false)
+        }
+    )
+
     
     socket.on("input_received", (res) => {
       console.log('input receiving, getting next prompt...')
