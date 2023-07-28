@@ -24,4 +24,5 @@ const getRandomTemplate = async (users) => {
 
 
 
+
 export{getRandomTemplate}

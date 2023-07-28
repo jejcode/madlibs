@@ -11,6 +11,7 @@ const GameBoard = () => {
   const socket = useContext(SocketContext);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameLoaded, setGameLoaded] = useState(false);
+  const [gameInProgress, setGameInProgress] = useState(false)
   const [gameSolved, setGameSolved] = useState(false);
   const [gameTemplate, setGameTemplate] = useState("");
   const [playerPrompts, setPlayerPrompts] = useState([]);
@@ -50,6 +51,11 @@ const GameBoard = () => {
   };
 
   useEffect(() => {
+    socket.on("GAME_IN_PROGRESS", res => {
+      setGameInProgress(true)
+      setGameStarted(true)
+      setGameLoaded(true)
+    })
     socket.on("loading_game", (message) => {
       console.log(message);
       setGameStarted(true);
@@ -93,14 +99,20 @@ const GameBoard = () => {
     })
     socket.on('all_users_finished', (allUserInputs) => {
       console.log(allUserInputs)
+      setGameInProgress(false)
       // convert userInputs into madlib solution
       // madlib.title
       // madlib.body
       // allUserInputs
       // iterate body and replace { } with allUserInputs[index]
-      let madLib = gameTemplate.body
-      for (let i = 0; i < gameTemplate.prompts.length; i++) {
-        madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, allUserInputs[i].input)
+      let madLib = gameTemplate.body || false
+      if(madLib) {
+        for (let i = 0; i < gameTemplate.prompts.length; i++) {
+          const matchedAnswer = allUserInputs.filter(obj => obj.index === i)
+          madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, matchedAnswer[0].input)
+        }
+      } else {
+        madLib = "You are now able to join the game!"
       }
       setGameSolved(madLib)
     })
@@ -130,40 +142,47 @@ const GameBoard = () => {
     <div
       id="gameBoard"
       className="d-flex align-items-center justify-content-center border rounded"
-    >
-      {!gameStarted ? (
-        <Button variant="dark" onClick={startGame}>Let's play!</Button>
-      ) : (
-        <>
-          {!gameLoaded ? (
-            <p>Loading MadLib prompts...</p>
-          ) : (
-            <>
-              {!gameSolved ? (
-                <>
-                  {!userFinished ?
-                    <UniversalInputForm
-                      placeHolder={`Enter a(n) ${currentPrompt.prompt}`}
-                      setAction={saveUserInput}
-                      buttonLabel="Next"
-                    />
-                    :
-                    <p>Waiting for others to finish...</p>
-                  }
-                </>
-              ) : (
-                <Card className="p-3">
-                  <h3>{gameTemplate.title}</h3>
-                  <p>{gameSolved}</p>
-                  <Link className="mb-4" to={`/madlibs/${gameTemplate._id}/edit`}>{gameTemplate._id}</Link>
-                  <Button variant="dark" onClick={resetGame}>Play again!</Button>
-
-                </Card>
-              )}
-            </>
-          )}
-        </>
-      )}
+    > 
+      <>
+        {gameInProgress ? <p>Please wait. Game in progress...</p>
+        :
+          <>
+            {!gameStarted ? (
+              <Button variant="dark" onClick={startGame}>Let's play!</Button>
+            ) : (
+              <>
+                {!gameLoaded ? (
+                  <p>Loading MadLib prompts...</p>
+                ) : (
+                  <>
+                    {!gameSolved ? (
+                      <>
+                        {!userFinished ?
+                          <UniversalInputForm
+                            placeHolder={`Enter a(n) ${currentPrompt.prompt}`}
+                            setAction={saveUserInput}
+                            buttonLabel="Next"
+                          />
+                          :
+                          <p>Waiting for others to finish...</p>
+                        }
+                      </>
+                    ) : (
+                      <Card className="p-3">
+                        <p className="h3">{gameTemplate.title}</p>
+                        <p>{gameSolved}</p>
+                        <Link className="mb-4" to={`/madlibs/${gameTemplate._id}/edit`}>{gameTemplate._id}</Link>
+                        <Button variant="dark" onClick={resetGame}>Play again!</Button>
+      
+                      </Card>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </>
+        }
+      </>
     </div>
   );
 };

@@ -92,7 +92,10 @@ async function serverStart() {
             users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id });
           }
         }
-
+      
+        if(madlibs[roomId]) {
+          socket.emit("GAME_IN_PROGRESS", true)
+        }
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
         if (users[roomId].some(user => user.socketId === socket.id)) {
@@ -223,7 +226,7 @@ async function serverStart() {
       // game play sockets
       socket.on("start_game", async ({ name, roomId }) => {
         try {
-          io.to(roomId).emit("new_message", { // send a message to the room that the game has started
+          io.to(roomId).emit("new_message", {
             message: `${name} started the game!`,
             name: name,
             isNewUser: true
@@ -250,36 +253,23 @@ async function serverStart() {
 
 
       socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
+        madlibs[roomId].push(inputWithIndex)
         console.log('user submitted input')
-        const user = users[roomId].find(user => user.socketId === socket.id); // find the user
-        if (user) { // if the user exists
-
-          if (!madlibs[roomId]) { // if the room doesn't exist in the madlibs object, create it
-            madlibs[roomId] = [inputWithIndex] // add the first input to the room
-          } else {
-            madlibs[roomId].push(inputWithIndex) // add the input to the room
-          }
-          if (!completedPrompts[roomId]) { // if the room doesn't exist in the completedPrompts object, create it
-            completedPrompts[roomId] = {}; // create the room
-          }
-          if (!completedPrompts[roomId][user.userName]) { // if the user doesn't exist in the room in the completedPrompts object, create it
-            completedPrompts[roomId][user.userName] = []; // create the user
-          }
-          completedPrompts[roomId][user.userName].push(inputWithIndex); // add the input to the user in the room
-          console.log("Completed Prompts", completedPrompts)
-
-          console.log("Madlib roomId", madlibs[roomId])
-          if (madlibs[roomId].length == limit) { // if the room has reached the limit of inputs
-            // send responses to everybody in the room and remove them from storage
-            io.to(roomId).emit('all_users_finished', madlibs[roomId]);
-            delete madlibs[roomId]
-          } else {
-            // send permission to continue
-            socket.emit('input_received', true)
-          }
+        if (!madlibs[roomId]) {
+          madlibs[roomId] = [inputWithIndex]
+        } else {
+          madlibs[roomId].push(inputWithIndex)
         }
-      });
-
+        console.log(madlibs[roomId])
+        if (madlibs[roomId].length == limit) {
+          // send responses to everybody in the room and remove them from storage
+          io.to(roomId).emit('all_users_finished', madlibs[roomId]);
+          delete madlibs[roomId]
+        } else {
+          // send permission to continue
+          socket.emit('input_received', true)
+        }
+      })
 
       socket.on("RESET_GAME", ({ name, roomId }) => {
         // Reset the game state for the room
