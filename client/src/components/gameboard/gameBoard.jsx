@@ -98,7 +98,8 @@ const GameBoard = () => {
       let madLib = gameTemplate.body || false
       if(madLib) {
         for (let i = 0; i < gameTemplate.prompts.length; i++) {
-          madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, allUserInputs[i].input)
+          const matchedAnswer = allUserInputs.filter(obj => obj.index === i)
+          madLib = madLib.replace(`{${gameTemplate.prompts[i]}}`, matchedAnswer[0].input)
         }
       } else {
         madLib = "You are now able to join the game!"
