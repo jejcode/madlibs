@@ -23,6 +23,6 @@ Update - MadLib documents will get updated with rankings and user completions
 Delete - users can delete the MadLib creations they don't like
 
 Bonus:
-Implelemnt Socket IO for both chat and game functionality
+Implement Socket IO for both chat and game functionality
 Responsive styling with Bootstrap
 Full deployment
