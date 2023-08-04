@@ -36,7 +36,7 @@ async function serverStart() {
     });
 
     
-    const users = {} // room#: [userNames]
+    const users = {} // room#: [{userName, colorSelected, socketId}]
     const madlibs = {} // room#: [input objects {index, input}]
     io.on("connection", (socket) => {
 
@@ -113,7 +113,29 @@ async function serverStart() {
           isNewUser: false
         });
       });
-
+      socket.on("CHECK_FOR_USER_IN_ROOMS", userName => {
+        for(const room in users) {
+          const userExists = users[room].some(user => user.socketId === socket.id);
+          if(userExists) {
+            console.log('user left room', userName)
+            socket.leave(room)
+            io.to(room).emit("new_message", {
+              message: `${userName} has left the chat`,
+              name: "Server",
+              isNewUser: true,
+              roomCode: room
+            })
+            if (users[room]) {
+              users[room] = users[room].filter(user => user.socketId !== socket.id)
+            }
+            const roomLength = users[room] ? users[room].length : 0;
+            if (roomLength === 0) {
+              delete users[room];
+            }
+            io.to(room).emit("JOIN_ROOM_ACCEPTED", users[room] || []); 
+          }
+        }
+      })
       socket.on("user_left_room", userInfo => {
         console.log('user left room', userInfo)
         socket.leave(userInfo.roomCode)
