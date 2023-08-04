@@ -29,6 +29,7 @@ const RoomView = () => {
 
   useBeforeUnload(
     useCallback(() => {
+      console.log('before unload is running')
       socket.emit("user_left_room", {
         name,
         roomCode: roomId,
@@ -36,9 +37,9 @@ const RoomView = () => {
       localStorage.setItem("name", name);
     })
   );
-
+  window.addEventListener('popstate', useBeforeUnload)
   useEffect(() => {
-
+    console.log('useEffect is running')
     // test to see if sockets are working
     socket.emit("USER_JOINED_ROOM", {
       roomId: roomId,
@@ -56,11 +57,11 @@ const RoomView = () => {
           navigate("/");
         };
     });
+    
     return () => {
       // Every socket.on needs a corresponding socket.off
       socket.off("JOIN_ROOM_ACCEPTED");
       socket.off("JOIN_ROOM_DENIED");
-
     };
   }, [socket]);
 
