@@ -45,8 +45,8 @@ async function serverStart() {
 
     io.on("connection", (socket) => {
 
-      socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => {
-        const newRoomCode = generateRoomCode(users);
+      socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => { 
+        const newRoomCode = generateRoomCode(users); 
         users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor, socketId: socket.id }];
         console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode)
@@ -70,8 +70,8 @@ async function serverStart() {
         if (roomCodes.length === 0) {
           socket.emit("ROOM_REQUEST_DENIED", "No rooms available");
         } else {
-          const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
-          users[randomRoomCode].push({ userName: reqName, colorSelected: reqColor, socketId: socket.id })
+          const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)] 
+          users[randomRoomCode].push({ userName: reqName, colorSelected: reqColor, socketId: socket.id }) // add user to room
           socket.join(randomRoomCode)
           socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
         }
@@ -85,11 +85,11 @@ async function serverStart() {
           return;
         }
         if (!users[roomId]) {
-          users[roomId] = [{ userName: name, colorSelected: color, socketId: socket.id }];
+          users[roomId] = [{ userName: name, colorSelected: color, socketId: socket.id }]; // add user to room
         } else {
-          const userExists = users[roomId].some(user => user.socketId === socket.id);
-          if (!userExists) {
-            users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id });
+          const userExists = users[roomId].some(user => user.socketId === socket.id); // check if user already exists in room
+          if (!userExists) { 
+            users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id }); // add user to room
           }
         }
       
@@ -155,28 +155,28 @@ async function serverStart() {
               console.log('otherUsers', otherUsers)
               //Distribtute the prompts to the other users
 
-              const leftOverPrompts = userAssignedPrompts.reduce((arr, prompt) => {
-                const prompter = userCompletedPrompts.find(completedPrompt => completedPrompt.index === prompt.index);
+              const leftOverPrompts = userAssignedPrompts.reduce((arr, prompt) => { // get the prompts that the user has not completed
+                const prompter = userCompletedPrompts.find(completedPrompt => completedPrompt.index === prompt.index); // check if the prompt is in the user's completed prompts
                 if (!prompter) {
-                  arr.push(prompt);
+                  arr.push(prompt); // if the prompt is not in the user's completed prompts, add it to the leftOverPrompts array
                 }
-                return arr;
-              }, [])
+                return arr; // return the array
+              }, []) 
               console.log('leftOverPrompts', leftOverPrompts)
 
               if (leftOverPrompts.length > 0) {
-                const newPromptList = leftOverPrompts.reduce((obj, prompt, index) => {
-                  const currentUser = users[userInfo.roomCode][index % users[userInfo.roomCode].length]
-                  if (!obj[currentUser.userName]) {
-                    obj[currentUser.userName] = []
+                const newPromptList = leftOverPrompts.reduce((obj, prompt, index) => { // assign the prompts to the other users
+                  const currentUser = users[userInfo.roomCode][index % users[userInfo.roomCode].length] // get the current user
+                  if (!obj[currentUser.userName]) { // if the user does not exist in the object, add them
+                    obj[currentUser.userName] = [] 
                   } else {
-                    obj[currentUser.userName].push(prompt)
+                    obj[currentUser.userName].push(prompt) // if the user exists in the object, add the prompt to their array
                   }
                   return obj;
                 }, {})
 
                 console.log('newPromptList', newPromptList)
-                io.to(userInfo.roomCode).emit("left_over_prompts", newPromptList)
+                io.to(userInfo.roomCode).emit("left_over_prompts", newPromptList) // send the new prompts to the users
                 assignedPrompts[userInfo.roomCode] = leftOverPrompts.assignedPrompts; // save the assigned prompts to the assignedPrompts object
 
               }
