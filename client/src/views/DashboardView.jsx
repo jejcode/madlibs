@@ -4,7 +4,6 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Card from "react-bootstrap/Card"
 import Modal from "react-bootstrap/Modal";
 import UniversalInputForm from "../components/forms/UniversalInputForm";
 import { SocketContext } from "../contexts/socket";
@@ -16,6 +15,7 @@ const DashboardView = () => {
   const name = sessionStorage.getItem("name");
   const selectedColor = sessionStorage.getItem("selectedColor");
   const [show, setShow] = useState(false);
+  const [roomCheck, setRoomCheck] = useState(false)
   const navigate = useNavigate();
 
   const handleClose = (roomId) => {
@@ -46,6 +46,9 @@ const DashboardView = () => {
   };
 
   useEffect(() => {
+    if(!roomCheck) {
+      socket.emit("CHECK_FOR_USER_IN_ROOMS", name)
+    }
     // Listen for a response from the server to check if the room was created successfully
     socket.on("CREATE_ROOM_SUCCESS", (roomId) => {
       console.log("navigating to room...", roomId);
