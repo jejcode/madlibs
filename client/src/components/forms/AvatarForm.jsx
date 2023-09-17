@@ -12,7 +12,7 @@ import greyAvatar from "../../assets/grey_icon.png";
 
 const AvatarForm = (props) => {
   const navigate = useNavigate();
-  const avatarList = [
+  const avatarList = [ // List of avatars to choose from
     { color: "blue", image: blueAvatar },
     { color: "red", image: redAvatar },
     { color: "yellow", image: yellowAvatar },
@@ -21,7 +21,7 @@ const AvatarForm = (props) => {
     { color: "grey", image: greyAvatar },
   ];
 
-  const handleAvatarClick = (color) => {
+  const handleAvatarClick = (color) => { // When an avatar is clicked, save the color to sessionStorage and navigate to the dashboard
     sessionStorage.setItem('selectedColor', color);
     console.log(sessionStorage.getItem('selectedColor'));
     navigate("/dashboard");
@@ -31,7 +31,7 @@ const AvatarForm = (props) => {
       <h3 className="d-flex justify-content-center">Choose an avatar:</h3>
       <Row className="justify-content-center">
         <Col id="avatar-list">
-          {avatarList.map((avatar, index) => {
+          {avatarList.map((avatar, index) => { // Map through the list of avatars and display them
             return (
               <img
                 key={index}

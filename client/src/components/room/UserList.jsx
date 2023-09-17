@@ -6,7 +6,7 @@ import Col from "react-bootstrap/Col";
 import { SocketContext } from "../../contexts/socket";
 import UserItem from "./UserItem";
 
-const UserList = (props) => {
+const UserList = (props) => { // This is the list of users in the room
   const { roomCode } = props;
   const name = sessionStorage.getItem("name");
   const socket = useContext(SocketContext);

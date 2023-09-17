@@ -6,7 +6,7 @@ import greenAvatar from "../../assets/green_icon.png";
 import purpleAvatar from "../../assets/purple_icon.png";
 import greyAvatar from "../../assets/grey_icon.png";
 
-const UserItem = ({ name, color }) => {
+const UserItem = ({ name, color }) => { // This component is used to display a user in the room
     const getAvatarImage = (color) => {
         switch (color) {
             case "blue":

@@ -14,8 +14,8 @@ const ChatView = () => {
   const [message, setMessage] = useState('')
   // console.log("users in room",usersInRoom)
   
-  useEffect(() => {
-    if (message !== '') {
+  useEffect(() => { 
+    if (message !== '') { // When the user submits a message, emit a socket event to send the message to the server
       socket.emit("new_message", {
         name: name,
         message: message,

@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import { useNavigate } from 'react-router-dom'
 import { deleteMadLibById } from '../../services/madlib-service'
 
-const DeleteModal = (props) => {
+const DeleteModal = (props) => { // This is a modal that pops up when the user clicks the delete button on a madlib
   const {madLibId} = props
   const [show, setShow] = useState(false)
   const navigate = useNavigate()

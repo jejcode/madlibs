@@ -18,19 +18,19 @@ const GameBoard = () => {
   const [currentPrompt, setCurrentPrompt] = useState({});
   const [userFinished, setUserFinished] = useState(false)
 
-  const startGame = () => {
+  const startGame = () => { // When the start game button is clicked, emit a socket event to start the game
     console.log("starting game");
     socket.emit("RESET_GAME", { name, roomId });
     setGameStarted(true);
     socket.emit("start_game", { name, roomId });
   };
 
-  const resetGame = () => {
+  const resetGame = () => { // When the reset game button is clicked, emit a socket event to reset the game
     socket.emit("RESET_GAME", { name, roomId });
     socket.emit("start_game", { name, roomId });
   };
 
-  const saveUserInput = (input) => {
+  const saveUserInput = (input) => { // When the user submits a prompt, emit a socket event to save the user's input
     const inputWithIndex = {
       index: currentPrompt.index,
       input: input,
@@ -42,7 +42,7 @@ const GameBoard = () => {
       limit: gameTemplate.prompts.length,
     });
   };
-  const getNextPrompt = () => {
+  const getNextPrompt = () => { // When the user submits a prompt, get the next prompt from the list of prompts
     setPlayerPrompts((prevPrompts) => {
       const [firstPrompt, ...remainingPrompts] = prevPrompts;
       setCurrentPrompt(firstPrompt);
@@ -50,18 +50,18 @@ const GameBoard = () => {
     });
   };
 
-  useEffect(() => {
+  useEffect(() => { // When the component mounts, emit a socket event to join the room
     socket.on("GAME_IN_PROGRESS", res => {
       setGameInProgress(true)
       setGameStarted(true)
       setGameLoaded(true)
     })
-    socket.on("loading_game", (message) => {
+    socket.on("loading_game", (message) => { 
       console.log(message);
       setGameStarted(true);
     });
 
-    socket.on("distribute_madlib", (madlib) => {
+    socket.on("distribute_madlib", (madlib) => { 
       if (!madlib) {
         console.error("Received null madlib from server");
         return;
@@ -83,7 +83,7 @@ const GameBoard = () => {
     )
 
     
-    socket.on("input_received", (res) => {
+    socket.on("input_received", (res) => { 
       console.log('input receiving, getting next prompt...')
       const [firstPrompt, ...remainingPrompts] = playerPrompts;
       console.log('next prompt', firstPrompt)

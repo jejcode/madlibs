@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const instance = axios.create({
+const instance = axios.create({ // This is the axios instance that is used to make requests to the backend
   baseURL: "http://localhost:8000/api",
 });
 
-const createNewMadLib = async (req) => {
-  try {
+const createNewMadLib = async (req) => { // This function is used to create a new madlib
+  try { 
     const newMadLib = await instance.post("/templates/new", req);
     return newMadLib.data;
   } catch (error) {
@@ -13,7 +13,7 @@ const createNewMadLib = async (req) => {
   }
 };
 
-const getMadLibById = async (madLibId) => {
+const getMadLibById = async (madLibId) => { // This function is used to get a madlib by its id
   try {
     const madLib = await instance.get(`/templates/${madLibId}/view`)
     return madLib.data
@@ -22,7 +22,7 @@ const getMadLibById = async (madLibId) => {
   }
 }
 
-const updateMadLibById = async ({madLibId, ...formData}) => {
+const updateMadLibById = async ({madLibId, ...formData}) => { // This function is used to update a madlib by its id
   try {
     const updatedMadLib = await instance.put(`/templates/${madLibId}/edit`, formData);
     console.log(updatedMadLib.data);
@@ -30,7 +30,7 @@ const updateMadLibById = async ({madLibId, ...formData}) => {
   } catch (error) {}
 };
 
-const deleteMadLibById = async (madLibId) => {
+const deleteMadLibById = async (madLibId) => { // This function is used to delete a madlib by its id
   try {
     const deletedMadLib = await instance.delete(`/templates/${madLibId}/delete`)
     return deletedMadLib.data

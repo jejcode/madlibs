@@ -46,21 +46,21 @@ async function serverStart() {
     io.on("connection", (socket) => {
 
       socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => { 
-        const newRoomCode = generateRoomCode(users); 
-        users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor, socketId: socket.id }];
-        console.log('generated room key:', newRoomCode)
-        socket.join(newRoomCode)
-        socket.emit("CREATE_ROOM_SUCCESS", newRoomCode);
-        socket.emit("JOIN_ROOM_ACCEPTED", users[newRoomCode]);
+        const newRoomCode = generateRoomCode(users); // generate a new room code
+        users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor, socketId: socket.id }]; // add user to room
+        console.log('generated room key:', newRoomCode) 
+        socket.join(newRoomCode) // join the room
+        socket.emit("CREATE_ROOM_SUCCESS", newRoomCode); // send the room code back to the client
+        socket.emit("JOIN_ROOM_ACCEPTED", users[newRoomCode]); // send the user list back to the client
       });
 
 
       socket.on("REQUEST_TO_JOIN_ROOM", info => {
-        const { roomId } = info
+        const { roomId } = info // get the room code
         if (!users[roomId]) {
-          socket.emit("ROOM_REQUEST_DENIED", false)
+          socket.emit("ROOM_REQUEST_DENIED", false) // if the room doesn't exist, send back a message
         } else {
-          socket.join(roomId);
+          socket.join(roomId); // join the room
           socket.emit("ROOM_REQUEST_ACCEPTED", roomId)
         }
       })
@@ -275,11 +275,11 @@ async function serverStart() {
 
 
       socket.on("user_submit_prompt", ({ inputWithIndex, roomId, limit }) => {
-        madlibs[roomId].push(inputWithIndex)
+        // madlibs[roomId].push(inputWithIndex) // add the user's input to the madlibs object
         console.log('user submitted input')
-        if (!madlibs[roomId]) {
+        if (!madlibs[roomId]) { // if the room doesn't exist in the madlibs object, create it
           madlibs[roomId] = [inputWithIndex]
-        } else {
+        } else { // if the room does exist in the madlibs object, add the user's input to the room
           madlibs[roomId].push(inputWithIndex)
         }
         console.log(madlibs[roomId])

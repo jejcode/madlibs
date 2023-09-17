@@ -6,8 +6,8 @@ import Col from 'react-bootstrap/Col'
 
 const UniversalInputForm = (props) => {
   // 
-  const {placeHolder, setAction, buttonLabel} = props
-  const [localValue, setLocalValue] = useState("")
+  const {placeHolder, setAction, buttonLabel} = props 
+  const [localValue, setLocalValue] = useState("") 
   const [localValueError, setLocalValueError] = useState("")
 
   const handleSubmit = (e) => {

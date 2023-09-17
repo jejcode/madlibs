@@ -8,7 +8,7 @@ import {
   updateMadLibById,
 } from "../../services/madlib-service";
 
-const MadLibForm = (props) => {
+const MadLibForm = (props) => { // This component is used to create a new madlib or edit an existing madlib
   const { edit, editTitle, editBody, madLibId } = props;
   const [title, setTitle] = useState(editTitle || "");
   const [body, setBody] = useState(editBody || "");
