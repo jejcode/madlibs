@@ -35,7 +35,7 @@ async function serverStart() {
       },
     });
 
-    
+
     const users = {} // room#: [{userName, colorSelected, socketId}]
     const madlibs = {} // room#: [input objects {index, input}]
     const assignedPrompts = {}; // room#: {userName: [prompts]}
@@ -45,10 +45,10 @@ async function serverStart() {
 
     io.on("connection", (socket) => {
 
-      socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => { 
+      socket.on("CREATE_ROOM_REQUEST", (reqName, reqColor) => {
         const newRoomCode = generateRoomCode(users); // generate a new room code
         users[newRoomCode] = [{ userName: reqName, colorSelected: reqColor, socketId: socket.id }]; // add user to room
-        console.log('generated room key:', newRoomCode) 
+        console.log('generated room key:', newRoomCode)
         socket.join(newRoomCode) // join the room
         socket.emit("CREATE_ROOM_SUCCESS", newRoomCode); // send the room code back to the client
         socket.emit("JOIN_ROOM_ACCEPTED", users[newRoomCode]); // send the user list back to the client
@@ -70,7 +70,7 @@ async function serverStart() {
         if (roomCodes.length === 0) {
           socket.emit("ROOM_REQUEST_DENIED", "No rooms available");
         } else {
-          const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)] 
+          const randomRoomCode = roomCodes[Math.floor(Math.random() * roomCodes.length)]
           users[randomRoomCode].push({ userName: reqName, colorSelected: reqColor, socketId: socket.id }) // add user to room
           socket.join(randomRoomCode)
           socket.emit("ROOM_REQUEST_ACCEPTED", randomRoomCode)
@@ -88,12 +88,12 @@ async function serverStart() {
           users[roomId] = [{ userName: name, colorSelected: color, socketId: socket.id }]; // add user to room
         } else {
           const userExists = users[roomId].some(user => user.socketId === socket.id); // check if user already exists in room
-          if (!userExists) { 
+          if (!userExists) {
             users[roomId].push({ userName: name, colorSelected: color, socketId: socket.id }); // add user to room
           }
         }
-      
-        if(madlibs[roomId]) {
+
+        if (madlibs[roomId]) {
           socket.emit("GAME_IN_PROGRESS", true)
         }
         socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
@@ -117,9 +117,9 @@ async function serverStart() {
         });
       });
       socket.on("CHECK_FOR_USER_IN_ROOMS", userName => {
-        for(const room in users) {
+        for (const room in users) {
           const userExists = users[room].some(user => user.socketId === socket.id);
-          if(userExists) {
+          if (userExists) {
             console.log('user left room', userName)
             socket.leave(room)
             io.to(room).emit("new_message", {
@@ -135,7 +135,7 @@ async function serverStart() {
             if (roomLength === 0) {
               delete users[room];
             }
-            io.to(room).emit("JOIN_ROOM_ACCEPTED", users[room] || []); 
+            io.to(room).emit("JOIN_ROOM_ACCEPTED", users[room] || []);
           }
         }
       })
@@ -144,11 +144,20 @@ async function serverStart() {
         if (users[userInfo.roomCode]) { // if the room exists
           const user = users[userInfo.roomCode].find(user => user.socketId === socket.id); // get the user
           if (user) { // if the user exists
-            const userAssignedPrompts = assignedPrompts[userInfo.roomCode][user.userName]; // get the user's assigned prompts
+            let userAssignedPrompts;
+            if (assignedPrompts[userInfo.roomCode]) {
+              userAssignedPrompts = assignedPrompts[userInfo.roomCode][user.userName];
+            }
+            // get the user's assigned prompts
             console.log('userAssignedPrompts', userAssignedPrompts)
-            const userCompletedPrompts = completedPrompts[userInfo.roomCode][user.userName]; // get the user's completed prompts
+            let userCompletedPrompts;
+            if (completedPrompts[userInfo.roomCode]) {
+              userCompletedPrompts = completedPrompts[userInfo.roomCode][user.userName];
+            }
+
             console.log('userCompletedPrompts', userCompletedPrompts)
-            if (userAssignedPrompts.length !== userCompletedPrompts.length && userAssignedPrompts) { // if the user has not completed all of their prompts
+            if (userAssignedPrompts && userCompletedPrompts && userAssignedPrompts.length !== userCompletedPrompts.length) {
+
               console.log(`User ${user.userName} left before completing their prompts.`);
               // assign the user's prompts to another user
               const otherUsers = users[userInfo.roomCode].filter(user => user.socketId !== socket.id); // get the other users in the room
@@ -161,14 +170,14 @@ async function serverStart() {
                   arr.push(prompt); // if the prompt is not in the user's completed prompts, add it to the leftOverPrompts array
                 }
                 return arr; // return the array
-              }, []) 
+              }, [])
               console.log('leftOverPrompts', leftOverPrompts)
 
               if (leftOverPrompts.length > 0) {
                 const newPromptList = leftOverPrompts.reduce((obj, prompt, index) => { // assign the prompts to the other users
                   const currentUser = users[userInfo.roomCode][index % users[userInfo.roomCode].length] // get the current user
                   if (!obj[currentUser.userName]) { // if the user does not exist in the object, add them
-                    obj[currentUser.userName] = [] 
+                    obj[currentUser.userName] = []
                   } else {
                     obj[currentUser.userName].push(prompt) // if the user exists in the object, add the prompt to their array
                   }
