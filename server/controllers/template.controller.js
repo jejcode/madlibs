@@ -3,26 +3,27 @@ import { pullPromptsFromText } from "../utils/server-functions.js";
 const createTemplate = async (req, res) => {
   try {
     // validate by creating an instance of request
-    const newTemplate = new Template(req.body);
-    const validationError = newTemplate.validateSync(); // synchronous validation
+    const newTemplate = new Template(req.body); // create a new instance of the model
+    const validationError = newTemplate.validateSync(); // validate the new instance
 
-    if (validationError) {
+    if (validationError) { // if there is a validation error, return a 400 response with the errors
       const errors = {};
       for (const field in validationError.errors) {
         errors[field] = validationError.errors[field].message;
       }
       return res.status(400).json({ errors });
     }
-    const prompts = pullPromptsFromText(req.body.body);
+    const prompts = pullPromptsFromText(req.body.body); // pull prompts from the body of the template
 
-    const postObj = { ...req.body, prompts };
-    const newMadlib = await Template.create(postObj);
-    return res.json(newMadlib);
+    const postObj = { ...req.body, prompts }; // create an object to post to the database
+    const newMadlib = await Template.create(postObj); // post the object to the database
+    return res.json(newMadlib); // return the new object
   } catch (err) {
     res.status(400).json(err);
   }
 };
 
+// Get all templates from the database
 const getAllTemplates = async (req, res) => {
   try {
     const allTemplates = await Template.find();
@@ -33,6 +34,7 @@ const getAllTemplates = async (req, res) => {
   }
 };
 
+// Get a template by id
 const getTemplateById = async (req, res) => {
   try {
     const template = await Template.findOne({ _id: req.params.templateId });
@@ -43,14 +45,15 @@ const getTemplateById = async (req, res) => {
   }
 };
 
+// Update a template by id
 const updateTemplateById = async (req, res) => {
   try {
     console.log(req.body);
-    const objectToUpdate = req.body;
-    const updatedPrompts = pullPromptsFromText(objectToUpdate.body);
-    objectToUpdate.prompts = updatedPrompts;
+    const objectToUpdate = req.body; // get the object to update from the request body
+    const updatedPrompts = pullPromptsFromText(objectToUpdate.body); // pull prompts from the body of the template
+    objectToUpdate.prompts = updatedPrompts; // add the prompts to the object to update
     console.log("updating with object", objectToUpdate);
-    const template = await Template.findOneAndUpdate(
+    const template = await Template.findOneAndUpdate( // update the template
       { _id: req.params.templateId },
       objectToUpdate,
       { new: true, runValidators: true }
@@ -62,6 +65,7 @@ const updateTemplateById = async (req, res) => {
   }
 };
 
+// Delete a template by id
 const deleteTemplateById = async (req, res) => {
   try {
     const madLibId = req.params.templateId;
