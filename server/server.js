@@ -96,10 +96,10 @@ async function serverStart() {
         if (madlibs[roomId]) {
           socket.emit("GAME_IN_PROGRESS", true)
         }
-        socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]);
-        socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]);
-        if (users[roomId].some(user => user.socketId === socket.id)) {
-          io.to(roomId).emit("new_message", {
+        socket.emit("JOIN_ROOM_ACCEPTED", users[roomId]); // send the user list back to the client
+        socket.to(roomId).emit("JOIN_ROOM_ACCEPTED", users[roomId]); // send the user list back to the client
+        if (users[roomId].some(user => user.socketId === socket.id)) { // if the user is in the room
+          io.to(roomId).emit("new_message", { // send a message to the room
             message: `${name} has joined the chat`,
             name: "Server",
             isNewUser: true,

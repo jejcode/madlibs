@@ -46,7 +46,7 @@ const DashboardView = () => {
   };
 
   useEffect(() => {
-    if(!roomCheck) {
+    if (!roomCheck) {
       socket.emit("CHECK_FOR_USER_IN_ROOMS", name)
     }
     // Listen for a response from the server to check if the room was created successfully
@@ -84,19 +84,19 @@ const DashboardView = () => {
         </Row>
       </Container>
       <Modal show={show} onHide={closeWithoutJoining} >
-                <Modal.Body>
-                  <UniversalInputForm
-                    setAction={handleClose}
-                    placeHolder="Enter room code"
-                    buttonLabel="Join"
-                  />
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={handleRandom}>
-                    Random
-                  </Button>
-                </Modal.Footer>
-              </Modal>
+        <Modal.Body>
+          <UniversalInputForm
+            setAction={handleClose}
+            placeHolder="Enter room code"
+            buttonLabel="Join"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleRandom}>
+            Random
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
