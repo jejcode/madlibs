@@ -43,9 +43,9 @@ const GameBoard = () => {
     });
   };
   const getNextPrompt = () => { // When the user submits a prompt, get the next prompt from the list of prompts
-    setPlayerPrompts((prevPrompts) => {
-      const [firstPrompt, ...remainingPrompts] = prevPrompts;
-      setCurrentPrompt(firstPrompt);
+    setPlayerPrompts((prevPrompts) => { // Set the current prompt to the first prompt in the list of prompts
+      const [firstPrompt, ...remainingPrompts] = prevPrompts; // Set the list of prompts to the remaining prompts
+      setCurrentPrompt(firstPrompt); // Return the remaining prompts
       return remainingPrompts;
     });
   };
